@@ -154,13 +154,13 @@ class MainWindow(QMainWindow):
 
         sanitizer_card = self.create_tool_card(
             "Email Sanitizer 🧼",
-            "Finds and updates any user email addresses that are not intended domains",
+            "Finds and updates any user email addresses that are not intended domains.",
             "sanitize.png",
             "./scripts/email_sanitizer.ps1"
         )
         injector_card = self.create_tool_card(
             "Email Injector 💉",
-            "Updates all accounts missing an email address by assigning a placeholder domain",
+            "Updates all accounts missing an email address by assigning a placeholder domain.",
             "inject.png",
             "./scripts/email_injector.ps1"
         )
@@ -172,7 +172,7 @@ class MainWindow(QMainWindow):
         # Coming soon card
         coming_soon_card = self.create_tool_card(
             "Additional Tools Coming Soon ⏳",
-            "New Features Coming Soon!.",
+            "New Features Coming Soon!",
             "soon.png",
             None
         )
