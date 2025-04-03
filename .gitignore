@@ -1,0 +1,37 @@
+# Python virtual environment
+venv/
+env/
+.env/
+.venv/
+
+# PyQt and Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution/packaging
+dist/
+build/
+*.egg-info/
+*.egg
+*.spec
+
+# IDE settings
+.vscode/*
+*.code-workspace
+.idea/
+
+# Keep important IDE configs
+!.vscode/launch.json
+!.vscode/settings.json
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Keep these files
+!requirements.txt
+!main.py
+!scripts/*.ps1
