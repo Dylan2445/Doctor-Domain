@@ -35,3 +35,6 @@ Thumbs.db
 !requirements.txt
 !main.py
 !scripts/*.ps1
+
+# Config files with sensitive data
+config/
