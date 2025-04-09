@@ -34,13 +34,13 @@ class EmailToolsPage(QWidget):
             "Email Sanitizer 🧼",
             "Finds and updates any user email addresses that are not intended domains.",
             "sanitize.png",
-            "email_sanitizer.ps1"
+            "scripts/email_sanitizer.py"
         )
         injector_card = ToolCard(
             "Email Injector 💉",
             "Updates all accounts missing an email address by assigning a placeholder domain.",
             "inject.png",
-            "email_injector.ps1"
+            "scripts/email_injector.py"
         )
 
         functions_layout.addWidget(sanitizer_card)

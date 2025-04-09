@@ -73,6 +73,6 @@ class ToolCard(QFrame):
 
     def run_script(self, script_path):
         try:
-            subprocess.run(["powershell", "-File", script_path], check=True)
+            subprocess.run(["python", script_path], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error running script: {e}")
