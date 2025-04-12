@@ -10,12 +10,17 @@ from ui.pages.email_tools_page import EmailToolsPage
 from ui.pages.login_page import LoginPage
 from ui.pages.settings_page import SettingsPage
 from ui.pages.coming_soon_page import ComingSoonPage
+from ui.state import AuthState
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Doctor Domain")
         self.setMinimumSize(1000, 600)
+        
+        # Get auth state instance
+        self.auth_state = AuthState.instance()
+        self.auth_state.add_listener(self.on_auth_state_changed)
         
         # Main layout
         main_widget = QWidget()
@@ -52,7 +57,7 @@ class MainWindow(QMainWindow):
 
         # Navigation buttons
         self.email_tools_btn = NavigationButton("📧 Email Tools", "email.png")
-        self.login_btn = NavigationButton("🔑 Login Settings", "login.png")
+        self.login_btn = NavigationButton("🔑 Account", "login.png")  # Changed text to Account
         self.settings_btn = NavigationButton("⚙️ Settings", "settings.png")
         self.coming_soon_btn = NavigationButton("🔜 Coming Soon", "soon.png")
         
@@ -75,7 +80,7 @@ class MainWindow(QMainWindow):
         # Create and add pages
         self.pages = {
             'email': EmailToolsPage(),
-            'login': LoginPage(),
+            'login': LoginPage(on_login=self.on_login_success),
             'settings': SettingsPage(),
             'coming_soon': ComingSoonPage()
         }
@@ -85,7 +90,7 @@ class MainWindow(QMainWindow):
 
         # Connect buttons
         self.email_tools_btn.clicked.connect(lambda: self.switch_page('email'))
-        self.login_btn.clicked.connect(lambda: self.switch_page('login'))
+        self.login_btn.clicked.connect(lambda: self.switch_page('login'))  # Simply navigate to login page
         self.settings_btn.clicked.connect(lambda: self.switch_page('settings'))
         self.coming_soon_btn.clicked.connect(lambda: self.switch_page('coming_soon'))
 
@@ -97,6 +102,23 @@ class MainWindow(QMainWindow):
         self.email_tools_btn.setProperty("Active", True)
         self.email_tools_btn.style().unpolish(self.email_tools_btn)
         self.email_tools_btn.style().polish(self.email_tools_btn)
+        
+    def on_login_success(self, access_token: str):
+        """Called by the login page when login is successful"""
+        self.auth_state.login(access_token)
+        
+    def handle_auth_button_click(self):
+        """Handle click on the login/logout button"""
+        if self.auth_state.is_logged_in:
+            self.auth_state.logout()
+            self.switch_page('login')
+        else:
+            self.switch_page('login')
+            
+    def on_auth_state_changed(self):
+        """Update UI when auth state changes"""
+        # No longer changing the button text based on login state
+        pass
 
     def switch_page(self, page_id):
         self.stack.setCurrentWidget(self.pages[page_id])
@@ -113,6 +135,11 @@ class MainWindow(QMainWindow):
             btn.setProperty("Active", pid == page_id)
             btn.style().unpolish(btn)
             btn.style().polish(btn)
+            
+    def closeEvent(self, event):
+        """Clean up when window is closed"""
+        self.auth_state.remove_listener(self.on_auth_state_changed)
+        super().closeEvent(event)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
