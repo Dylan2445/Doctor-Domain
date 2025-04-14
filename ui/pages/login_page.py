@@ -84,6 +84,7 @@ class LoginPage(QWidget):
         sections_data = [
             ("Connection Details", [
                 ("Server", "workserver.example.com"),
+                ("Customer ID", "Enter customer ID"),
                 ("Library ID", "Active")
             ]), 
             ("Login Credentials", [

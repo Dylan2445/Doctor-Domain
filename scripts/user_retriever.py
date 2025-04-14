@@ -6,19 +6,24 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class UserRetriever:
-    def __init__(self, server_url: str, access_token: str, library_id: str):
+    def __init__(self, server_url: str, access_token: str, customer_id: str, library_id: str):
         self.server_url = server_url
         self.access_token = access_token
+        self.customer_id = customer_id
         self.library_id = library_id
         self.headers = {
             'Authorization': f'Bearer {access_token}',
+            'X-Auth-Token': access_token,
             'Content-Type': 'application/json'
         }
 
     def get_all_users(self) -> List[Dict]:
         """Retrieves all users using pagination strategy"""
+        if not self.customer_id:
+            raise Exception("Customer ID is required")
+            
         all_users = []
-        base_url = f'https://{self.server_url}/work/api/v2/libraries/{self.library_id}/users'
+        base_url = f'https://{self.server_url}/work/api/v2/customers/{self.customer_id}/libraries/{self.library_id}/users'
         
         # First try with maximum limit
         params = {
@@ -28,7 +33,18 @@ class UserRetriever:
         
         response = requests.get(base_url, headers=self.headers, params=params, verify=False)
         if not response.ok:
-            raise Exception(f"Failed to retrieve users: {response.text}")
+            # Create debug-safe headers by indicating presence of auth tokens
+            debug_headers = {
+                k: ('Bearer token present' if k == 'Authorization' 
+                    else 'Token present' if k == 'X-Auth-Token'
+                    else v)
+                for k, v in self.headers.items()
+            }
+            raise Exception(f"""Failed to retrieve users:
+URL: {base_url}
+Parameters: {json.dumps(params, indent=2)}
+Headers: {json.dumps(debug_headers, indent=2)}
+Response: {response.text}""")
             
         data = response.json()
         all_users.extend(data['data'])
@@ -52,7 +68,18 @@ class UserRetriever:
                     
                     response = requests.get(base_url, headers=self.headers, params=params, verify=False)
                     if not response.ok:
-                        break
+                        # Create debug-safe headers by indicating presence of auth tokens
+                        debug_headers = {
+                            k: ('Bearer token present' if k == 'Authorization' 
+                                else 'Token present' if k == 'X-Auth-Token'
+                                else v)
+                            for k, v in self.headers.items()
+                        }
+                        raise Exception(f"""Failed to retrieve users for prefix '{char}':
+URL: {base_url}
+Parameters: {json.dumps(params, indent=2)}
+Headers: {json.dumps(debug_headers, indent=2)}
+Response: {response.text}""")
                         
                     data = response.json()
                     users = data['data']

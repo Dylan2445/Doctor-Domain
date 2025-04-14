@@ -6,17 +6,24 @@ def sanitize_emails():
     # Read the user list from temp file
     temp_path = Path(__file__).parent.parent / 'temp_users.json'
     if not temp_path.exists():
-        print("No user list found. Please try again.")
+        print("Error: No user list found. Make sure you're logged in and have proper permissions.")
         return
 
     try:
         with open(temp_path) as f:
             users = json.load(f)
             
-        print(f"Found {len(users)} users:")
+        if not users:
+            print("Warning: No users found in the system")
+            return
+            
+        print(f"Successfully retrieved {len(users)} users")
+        print("\nUser list:")
         for user in users:
             print(f"- {user}")
             
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON data in user list")
     except Exception as e:
         print(f"Error processing users: {str(e)}")
         

@@ -89,7 +89,7 @@ class ToolCard(QFrame):
             return
             
         try:
-            # Load settings to get server and library ID
+            # Load settings to get server, library ID and customer ID
             config_path = Path(__file__).parent.parent.parent / 'config' / 'login_settings.json'
             if not config_path.exists():
                 self.show_error("Configuration Error", "Login settings not found. Please configure your account first.")
@@ -100,14 +100,18 @@ class ToolCard(QFrame):
                 
             server = settings.get('Server')
             library_id = settings.get('Library ID')
+            customer_id = settings.get('Customer ID')
             
-            if not all([server, library_id]):
-                self.show_error("Configuration Error", "Missing server or library ID in settings.")
+            if not all([server, library_id, customer_id]):
+                self.show_error("Configuration Error", "Missing server, customer ID or library ID in settings.")
                 return
+                
+            # Define temp_path outside try block to fix scoping
+            temp_path = None
                 
             if str(self.script_path).endswith('email_sanitizer.py'):
                 # For sanitizer, first get user list
-                retriever = UserRetriever(server, self.auth_state.access_token, library_id)
+                retriever = UserRetriever(server, self.auth_state.access_token, customer_id, library_id)
                 try:
                     users = retriever.get_user_list()
                     # Store users in a temporary file for the sanitizer script
@@ -115,32 +119,46 @@ class ToolCard(QFrame):
                     with open(temp_path, 'w') as f:
                         json.dump(users, f)
                     # Now run the actual sanitizer script
-                    subprocess.run(["python", self.script_path], check=True)
+                    subprocess.run(["python", str(self.script_path)], check=True)
                 except Exception as e:
                     self.show_error("Error", f"Failed to retrieve users: {str(e)}")
                 finally:
-                    # Clean up temp file
-                    if temp_path.exists():
+                    # Clean up temp file if it exists
+                    if temp_path and temp_path.exists():
                         temp_path.unlink()
             else:
                 # For other scripts, just run them directly
-                subprocess.run(["python", self.script_path], check=True)
+                subprocess.run(["python", str(self.script_path)], check=True)
                 
         except Exception as e:
             self.show_error("Error", f"Failed to run tool: {str(e)}")
 
     def show_error(self, title: str, message: str):
-        """Show an error message box"""
+        """Show an error message box with improved formatting"""
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Icon.Critical)
-        msg.setText(message)
+        
+        # Format the error message nicely with monospace font for technical details
+        formatted_message = message.replace('\n', '<br>').replace(' ', '&nbsp;')
+        html_message = f"""
+            <div style='font-family: sans-serif;'>
+                <div style='margin-bottom: 10px;'>{formatted_message}</div>
+            </div>
+        """
+        
+        msg.setText(html_message)
         msg.setWindowTitle(title)
         msg.setStyleSheet("""
             QMessageBox {
                 background-color: white;
+                min-width: 600px;
             }
             QMessageBox QLabel {
                 color: #1E293B;
+                font-size: 13px;
+                padding: 10px;
+                selection-background-color: #3B82F6;
+                selection-color: white;
             }
             QPushButton {
                 background: #3B82F6;
