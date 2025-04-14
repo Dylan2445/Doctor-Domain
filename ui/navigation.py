@@ -15,19 +15,23 @@ class NavigationButton(QPushButton):
                 color: #94A3B8;
                 border: none;
                 text-align: left;
-                padding: 12px 15px;
-                font-size: 14px;
+                padding: 8px 16px;
+                font-size: 15px;
                 font-weight: 500;
-                border-radius: 8px;
-                margin: 2px 10px;
+                border-radius: 6px;
+                margin: 2px 12px;
+                min-height: 44px;
             }
             QPushButton:hover {
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 0.08);
                 color: white;
             }
             QPushButton[Active=true] {
                 background: #3B82F6;
                 color: white;
+            }
+            QPushButton[Active=true]:hover {
+                background: #2563EB;
             }
         """)
         self.setCursor(Qt.CursorShape.PointingHandCursor)

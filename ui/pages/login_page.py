@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QFrame, 
                             QGridLayout, QLineEdit, QPushButton, QHBoxLayout,
-                            QMessageBox, QGraphicsDropShadowEffect)
+                            QMessageBox, QScrollArea, QSizePolicy)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor
+from PyQt6.QtGui import QColor, QFont
 import json
 import requests
 import urllib3
@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import Callable, Optional
 from ..state import AuthState
 
-# Disable SSL warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class LoginPage(QWidget):
@@ -20,341 +19,265 @@ class LoginPage(QWidget):
         self.on_login = on_login
         self.config_path = Path(__file__).parent.parent.parent / 'config' / 'login_settings.json'
         self.config_path.parent.mkdir(exist_ok=True)
+        self.login_inputs = {}
         self.setup_ui()
         self.load_login_settings()
         self.auth_state.add_listener(self.update_ui_state)
         self.update_ui_state()
 
     def setup_ui(self):
-        self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(20, 20, 20, 20)
-        self.main_layout.setSpacing(15)
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(30, 30, 30, 30)  # Reduced from 40
+        main_layout.setSpacing(20)  # Reduced from 30
 
-        self.header = QLabel("Login")
-        self.header.setStyleSheet("""
-            font-size: 22px;
+        # Header with status
+        header_container = QWidget()
+        header_layout = QHBoxLayout(header_container)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+
+        header = QLabel("Account Settings")
+        header.setStyleSheet("""
+            font-size: 24px;
             font-weight: 600;
             color: #1E293B;
-            padding-bottom: 15px;
         """)
-        self.main_layout.addWidget(self.header)
-
-        # Create containers for both states
-        self.login_container = self.create_login_container()
-        self.logged_in_container = self.create_logged_in_container()
         
-        self.main_layout.addWidget(self.login_container)
-        self.main_layout.addWidget(self.logged_in_container)
-        self.main_layout.addStretch()
+        self.status_label = QLabel()
+        self.status_label.setStyleSheet("""
+            font-size: 14px;
+            font-weight: 500;
+            color: #94A3B8;
+            margin-left: 12px;
+        """)
+        
+        header_layout.addWidget(header)
+        header_layout.addWidget(self.status_label)
+        header_layout.addStretch()
+        
+        main_layout.addWidget(header_container)
+        self.login_form = self.create_login_form()
+        main_layout.addWidget(self.login_form)
+        main_layout.addStretch()
 
-    def create_logged_in_container(self):
-        container = QFrame()
-        container.setFixedWidth(600)
-        container.setStyleSheet("""
+    def create_login_form(self):
+        form = QFrame()
+        form.setFixedWidth(580)
+        form.setStyleSheet("""
             QFrame {
                 background: white;
-                border-radius: 8px;
-                padding: 20px 30px;
+                border: none;
+                border-radius: 12px;
             }
         """)
 
-        shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(15)
-        shadow.setXOffset(0)
-        shadow.setYOffset(2)
-        shadow.setColor(QColor(0, 0, 0, 20))
-        container.setGraphicsEffect(shadow)
+        layout = QVBoxLayout(form)
+        layout.setSpacing(16)  # Reduced from 24
+        layout.setContentsMargins(0, 0, 0, 0)
 
-        layout = QVBoxLayout(container)
-        layout.setSpacing(20)
+        # Main content area
+        content = QWidget()
+        content_layout = QVBoxLayout(content)
+        content_layout.setSpacing(24)  # Reduced from 32
+        content_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Account Status Header
-        header_widget = QWidget()
-        header_layout = QHBoxLayout(header_widget)
-        header_layout.setContentsMargins(0, 0, 0, 0)
-        
-        status_icon = QLabel("🟢")  # Green circle emoji
-        status_icon.setStyleSheet("""
-            font-size: 14px;
-            margin-right: 8px;
+        # Create sections using modern panels
+        sections_data = [
+            ("Connection Details", [
+                ("Server", "workserver.example.com"),
+                ("Library ID", "Active")
+            ]), 
+            ("Login Credentials", [
+                ("Username", "john.doe"),
+                ("Password", "Enter password", True)
+            ]),
+            ("API Settings", [
+                ("Client ID", "From administrator"),
+                ("Client Secret", "Optional")
+            ])
+        ]
+
+        for section_title, fields in sections_data:
+            panel = self.create_panel(section_title, fields)
+            content_layout.addWidget(panel)
+
+        layout.addWidget(content)
+
+        # Bottom action panel
+        action_panel = QWidget()
+        action_panel.setStyleSheet("""
+            QWidget {
+                background: #F8FAFC;
+                border-top: 1px solid #E2E8F0;
+            }
         """)
-        
-        status_text = QLabel("Active Session")
-        status_text.setStyleSheet("""
-            font-size: 14px;
-            color: #059669;
-        """)
-        
-        header_layout.addWidget(status_icon)
-        header_layout.addWidget(status_text)
-        header_layout.addStretch()
+        action_layout = QHBoxLayout(action_panel)
+        action_layout.setContentsMargins(24, 20, 24, 20)
 
-        logout_btn = QPushButton("Logout")
-        logout_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        logout_btn.setStyleSheet("""
+        self.clear_btn = QPushButton("Clear")
+        self.clear_btn.setFixedSize(100, 38)
+        self.clear_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.clear_btn.setStyleSheet("""
             QPushButton {
-                background: transparent;
-                color: #EF4444;
-                border: 1px solid #EF4444;
-                padding: 6px 16px;
-                border-radius: 4px;
+                color: #DC2626;
+                border: 1.5px solid #DC2626;
+                border-radius: 6px;
                 font-weight: 500;
-                font-size: 13px;
+                font-size: 14px;
             }
             QPushButton:hover {
                 background: #FEE2E2;
             }
         """)
-        logout_btn.clicked.connect(self.handle_logout)
-        header_layout.addWidget(logout_btn)
-        
-        layout.addWidget(header_widget)
 
-        # Account Parameters Section
-        params_section = QFrame()
-        params_section.setStyleSheet("""
-            QFrame {
-                background: #F8FAFC;
-                border: 1px solid #E2E8F0;
-                border-radius: 8px;
-            }
-        """)
-        params_layout = QVBoxLayout(params_section)
-        params_layout.setSpacing(16)
-        params_layout.setContentsMargins(20, 20, 20, 20)
-
-        # Section title
-        section_title = QLabel("Connection Parameters")
-        section_title.setStyleSheet("""
-            font-size: 16px;
-            font-weight: 600;
-            color: #1E293B;
-        """)
-        params_layout.addWidget(section_title)
-
-        # Parameters grid
-        params_grid = QWidget()
-        grid_layout = QGridLayout(params_grid)
-        grid_layout.setSpacing(12)
-        grid_layout.setColumnStretch(1, 1)
-
-        # Define fields to show
-        fields = [
-            ("Server", "🌐"),
-            ("Library ID", "📚"),
-            ("Username", "👤"),
-            ("Client ID", "🔑")
-        ]
-
-        for row, (field, icon) in enumerate(fields):
-            # Create field container
-            field_container = QWidget()
-            field_layout = QVBoxLayout(field_container)
-            field_layout.setSpacing(4)
-            field_layout.setContentsMargins(0, 0, 0, 0)
-
-            # Label with icon
-            label = QLabel(f"{icon} {field}")
-            label.setStyleSheet("""
-                color: #64748B;
-                font-size: 13px;
-            """)
-            
-            # Value
-            value = QLabel(self.login_inputs[field].text() if field in self.login_inputs else "")
-            value.setStyleSheet("""
-                color: #1E293B;
-                font-size: 14px;
-                font-weight: 500;
-            """)
-            
-            field_layout.addWidget(label)
-            field_layout.addWidget(value)
-            
-            grid_layout.addWidget(field_container, row, 0)
-
-        params_layout.addWidget(params_grid)
-
-        # Add edit button at the bottom of parameters section
-        edit_btn = QPushButton("Edit Connection Parameters")
-        edit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        edit_btn.setStyleSheet("""
+        self.connect_btn = QPushButton("Connect")
+        self.connect_btn.setFixedSize(100, 38)
+        self.connect_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.connect_btn.setStyleSheet("""
             QPushButton {
                 background: #3B82F6;
                 color: white;
                 border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
+                border-radius: 6px;
                 font-weight: 500;
-                font-size: 13px;
-                width: 100%;
+                font-size: 14px;
             }
             QPushButton:hover {
                 background: #2563EB;
             }
         """)
-        edit_btn.clicked.connect(self.switch_to_edit_mode)
-        params_layout.addWidget(edit_btn)
 
-        layout.addWidget(params_section)
-        layout.addStretch()
+        action_layout.addStretch()
+        action_layout.addWidget(self.clear_btn)
+        action_layout.addWidget(self.connect_btn)
 
-        return container
+        self.clear_btn.clicked.connect(self.clear_login_settings)
+        self.connect_btn.clicked.connect(self.handle_connection)
 
-    def switch_to_edit_mode(self):
-        """Switch from logged in view to edit mode"""
-        self.login_container.setVisible(True)
-        self.logged_in_container.setVisible(False)
-        self.header.setText("Edit Parameters")
+        layout.addWidget(action_panel)
+        return form
 
-    def create_login_container(self):
-        form_container = QFrame()
-        form_container.setFixedWidth(600)
-        form_container.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-radius: 8px;
-                padding: 20px 30px;
-            }
-        """)
-        
-        shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(15)
-        shadow.setXOffset(0)
-        shadow.setYOffset(2)
-        shadow.setColor(QColor(0, 0, 0, 20))
-        form_container.setGraphicsEffect(shadow)
+    def create_panel(self, title: str, fields: list) -> QWidget:
+        panel = QWidget()
+        layout = QGridLayout(panel)
+        layout.setSpacing(16)
+        layout.setContentsMargins(24, 16, 24, 16)
 
-        form_layout = QGridLayout(form_container)
-        form_layout.setSpacing(12)
-        form_layout.setColumnStretch(1, 1)
-        form_layout.setHorizontalSpacing(20)
-        form_layout.setVerticalSpacing(8)
+        # Title at the top
+        title_label = QLabel(title)
+        title_label.setStyleSheet("font-size: 16px; font-weight: 600; color: #0F172A;")
+        layout.addWidget(title_label, 0, 0, 1, 2)
 
-        self.login_inputs = {}
-        fields = [
-            ("Server", "", "Connect to your organization's server", "Example: workserver.example.com"),
-            ("Library ID", "", "Specify your library system identifier", "Example: Active"),
-            ("Username", "", "Enter your domain username", "Example: john.doe"),
-            ("Password", "", "Enter your domain password", "Keep Secure"),
-            ("Client ID", "", "Your assigned client identifier", "From administrator"),
-            ("Client Secret", "", "Your client authentication secret", "Optional")
-        ]
+        # Add fields starting from row 1
+        for row, (label_text, placeholder, *opts) in enumerate(fields, start=1):
+            # Label styling
+            label = QLabel(f"{label_text}:")
+            label.setStyleSheet("""
+                font-size: 14px;
+                color: #475569;
+                margin-right: 8px;
+            """)
+            
+            # Input field styling
+            input_field = QLineEdit()
+            input_field.setPlaceholderText(placeholder)
+            if opts and opts[0]:
+                input_field.setEchoMode(QLineEdit.EchoMode.Password)
 
-        for i, (label_text, default, description, tip) in enumerate(fields):
-            row = i * 2
-            self.add_form_field(form_layout, row, label_text, description, tip)
+            input_field.setStyleSheet("""
+                QLineEdit {
+                    border: 1.5px solid #E2E8F0;
+                    border-radius: 6px;
+                    padding: 8px 12px;
+                    background: white;
+                    color: #0F172A;
+                    font-size: 14px;
+                    margin: 2px 0;
+                    min-height: 20px;
+                }
+                QLineEdit:focus {
+                    border: 2px solid #3B82F6;
+                }
+            """)
+            
+            # Set size policies to allow natural height
+            input_field.setSizePolicy(
+                QSizePolicy.Policy.Expanding,
+                QSizePolicy.Policy.Minimum
+            )
 
-        btn_container = self.create_button_container()
-        form_layout.addWidget(btn_container, len(fields) * 2, 0, 1, 2, Qt.AlignmentFlag.AlignRight)
-        
-        return form_container
+            # Add to grid with proper alignment
+            layout.addWidget(label, row, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+            layout.addWidget(input_field, row, 1)
+            
+            self.login_inputs[label_text] = input_field
+
+        # Set column stretching
+        layout.setColumnStretch(1, 1)
+        return panel
+
+    def handle_connection(self):
+        if self.auth_state.is_logged_in:
+            self.handle_logout()
+        else:
+            self.attempt_login()
 
     def update_ui_state(self):
-        """Update UI based on login state"""
         is_logged_in = self.auth_state.is_logged_in
-        self.login_container.setVisible(not is_logged_in)
-        self.logged_in_container.setVisible(is_logged_in)
-        self.header.setText("Account" if is_logged_in else "Login")
+        
+        # Update status label
+        self.status_label.setText("Connected" if is_logged_in else "Disconnected")
+        self.status_label.setStyleSheet(f"""
+            font-size: 14px;
+            font-weight: 500;
+            color: {'#059669' if is_logged_in else '#94A3B8'};
+            margin-left: 12px;
+        """)
+
+        # Update button text and style
+        self.connect_btn.setText("Disconnect" if is_logged_in else "Connect")
+        self.connect_btn.setStyleSheet("""
+            QPushButton {
+                padding: 6px 14px;
+                background: %s;
+                color: %s;
+                border: %s;
+                border-radius: 5px;
+                font-weight: 500;
+                min-width: 90px;
+            }
+            QPushButton:hover {
+                background: %s;
+            }
+        """ % (
+            'white' if is_logged_in else '#3B82F6',
+            '#DC2626' if is_logged_in else 'white',
+            '1.5px solid #DC2626' if is_logged_in else 'none',
+            '#FEE2E2' if is_logged_in else '#2563EB'
+        ))
+
+        # Update input fields
+        for input_field in self.login_inputs.values():
+            input_field.setReadOnly(is_logged_in)
+            input_field.setStyleSheet("""
+                QLineEdit {
+                    border: 1.5px solid #E2E8F0;
+                    border-radius: 6px;
+                    padding: 8px 12px;
+                    background: %s;
+                    color: #1E293B;
+                    font-size: 14px;
+                }
+                QLineEdit:focus {
+                    border: 2px solid #3B82F6;
+                }
+            """ % ('#F8FAFC' if is_logged_in else 'white'))
+
+        # Show/hide clear button
+        self.clear_btn.setVisible(not is_logged_in)
 
     def handle_logout(self):
         self.auth_state.logout()
         self.show_message("Success", "You have been logged out successfully.", QMessageBox.Icon.Information)
-
-    def add_form_field(self, layout, row, label_text, description, tip):
-        label = QLabel(label_text)
-        label.setFixedWidth(120)
-        label.setStyleSheet("""
-            color: #1E293B;
-            font-weight: 600;
-            font-size: 14px;
-            padding: 8px 0;
-        """)
-        
-        input_field = QLineEdit()
-        input_field.setFixedHeight(36)
-        input_field.setPlaceholderText(tip)
-        if label_text == "Password":
-            input_field.setEchoMode(QLineEdit.EchoMode.Password)
-        
-        input_field.setStyleSheet("""
-            QLineEdit {
-                padding: 8px 12px;
-                border: 1px solid #E2E8F0;
-                border-radius: 4px;
-                background: white;
-                color: #1E293B;
-                font-size: 14px;
-            }
-            QLineEdit:focus {
-                border: 1px solid #3B82F6;
-            }
-            QLineEdit::placeholder {
-                color: #94A3B8;
-                opacity: 0.8;
-            }
-        """)
-        
-        desc_label = QLabel(description)
-        desc_label.setWordWrap(True)
-        desc_label.setStyleSheet("""
-            color: #64748B;
-            font-size: 12px;
-            padding: 0 0 12px 0;
-            min-height: 16px;
-        """)
-        
-        layout.addWidget(label, row, 0, Qt.AlignmentFlag.AlignTop)
-        layout.addWidget(input_field, row, 1)
-        layout.addWidget(desc_label, row + 1, 1)
-        
-        self.login_inputs[label_text] = input_field
-
-    def create_button_container(self):
-        btn_container = QWidget()
-        btn_layout = QHBoxLayout(btn_container)
-        btn_layout.setSpacing(12)
-        btn_layout.setContentsMargins(0, 0, 0, 0)
-
-        login_btn = QPushButton("Login")
-        login_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        login_btn.setStyleSheet("""
-            QPushButton {
-                background: #3B82F6;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background: #2563EB;
-            }
-        """)
-        
-        clear_btn = QPushButton("Clear")
-        clear_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        clear_btn.setStyleSheet("""
-            QPushButton {
-                background: #EF4444;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background: #DC2626;
-            }
-        """)
-
-        btn_layout.addWidget(login_btn)
-        btn_layout.addWidget(clear_btn)
-
-        login_btn.clicked.connect(self.attempt_login)
-        clear_btn.clicked.connect(self.clear_login_settings)
-
-        return btn_container
 
     def attempt_login(self):
         # Get all input values

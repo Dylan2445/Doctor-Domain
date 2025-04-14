@@ -57,7 +57,7 @@ class MainWindow(QMainWindow):
 
         # Navigation buttons
         self.email_tools_btn = NavigationButton("📧 Email Tools", "email.png")
-        self.login_btn = NavigationButton("🔑 Account", "login.png")  # Changed text to Account
+        self.login_btn = NavigationButton("🔑 Account", "login.png")
         self.settings_btn = NavigationButton("⚙️ Settings", "settings.png")
         self.coming_soon_btn = NavigationButton("🔜 Coming Soon", "soon.png")
         
@@ -69,12 +69,14 @@ class MainWindow(QMainWindow):
 
         # Main content area
         content_area = QWidget()
-        content_area.setStyleSheet("background: #F1F5F9;")
+        content_area.setStyleSheet("background: white;")
         content_layout = QVBoxLayout(content_area)
         content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setSpacing(0)
         
         # Stacked widget for different pages
         self.stack = QStackedWidget()
+        self.stack.setStyleSheet("background: white;")
         content_layout.addWidget(self.stack)
 
         # Create and add pages
@@ -90,7 +92,7 @@ class MainWindow(QMainWindow):
 
         # Connect buttons
         self.email_tools_btn.clicked.connect(lambda: self.switch_page('email'))
-        self.login_btn.clicked.connect(lambda: self.switch_page('login'))  # Simply navigate to login page
+        self.login_btn.clicked.connect(lambda: self.switch_page('login'))
         self.settings_btn.clicked.connect(lambda: self.switch_page('settings'))
         self.coming_soon_btn.clicked.connect(lambda: self.switch_page('coming_soon'))
 
