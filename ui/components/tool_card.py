@@ -16,7 +16,7 @@ class ToolCard(QFrame):
         
         self.setStyleSheet("""
             QFrame {
-                background: white;
+                background-color: white;
                 border-radius: 8px;
                 padding: 8px;
             }
@@ -121,7 +121,16 @@ class ToolCard(QFrame):
                     # Now run the actual sanitizer script
                     subprocess.run(["python", str(self.script_path)], check=True)
                 except Exception as e:
-                    self.show_error("Error", f"Failed to retrieve users: {str(e)}")
+                    # Enhanced error message with more context
+                    error_details = f"""Failed to retrieve users: {str(e)}
+
+Server URL: https://{server}
+Customer ID: {customer_id}
+Library ID: {library_id}
+Request URL: https://{server}/work/api/v2/customers/{customer_id}/libraries/{library_id}/users
+
+"""
+                    self.show_error("Error Retrieving Users", error_details)
                 finally:
                     # Clean up temp file if it exists
                     if temp_path and temp_path.exists():

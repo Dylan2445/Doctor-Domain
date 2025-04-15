@@ -66,9 +66,9 @@ class LoginPage(QWidget):
         form.setFixedWidth(580)
         form.setStyleSheet("""
             QFrame {
-                background: white;
+                background-color: white;
                 border: none;
-                border-radius: 10px;  # Slightly reduced radius
+                border-radius: 10px;
             }
         """)
 

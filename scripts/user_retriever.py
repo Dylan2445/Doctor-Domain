@@ -23,7 +23,7 @@ class UserRetriever:
             raise Exception("Customer ID is required")
             
         all_users = []
-        base_url = f'https://{self.server_url}/work/api/v2/customers/{self.customer_id}/libraries/{self.library_id}/users'
+        base_url = f'https://{self.server_url}/work/api/v2/customers/{self.customer_id}/users'
         
         # First try with maximum limit
         params = {
@@ -96,6 +96,6 @@ Response: {response.text}""")
         return all_users
 
     def get_user_list(self) -> List[str]:
-        """Returns just the list of user aliases"""
+        """Returns just the list of user emails"""
         users = self.get_all_users()
-        return [user['alias'] for user in users]
+        return [user['email'] for user in users]
