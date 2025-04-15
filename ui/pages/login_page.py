@@ -27,31 +27,33 @@ class LoginPage(QWidget):
 
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(30, 30, 30, 30)  # Reduced from 40
-        main_layout.setSpacing(20)  # Reduced from 30
+        main_layout.setContentsMargins(25, 16, 25, 20)
+        main_layout.setSpacing(12)
 
         # Header with status
         header_container = QWidget()
         header_layout = QHBoxLayout(header_container)
         header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(8)
 
         header = QLabel("Account Settings")
         header.setStyleSheet("""
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 600;
             color: #1E293B;
         """)
         
         self.status_label = QLabel()
         self.status_label.setStyleSheet("""
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
-            color: #94A3B8;
-            margin-left: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: #F1F5F9;
         """)
         
         header_layout.addWidget(header)
-        header_layout.addWidget(self.status_label)
+        header_layout.addWidget(self.status_label, alignment=Qt.AlignmentFlag.AlignVCenter)
         header_layout.addStretch()
         
         main_layout.addWidget(header_container)
@@ -66,18 +68,18 @@ class LoginPage(QWidget):
             QFrame {
                 background: white;
                 border: none;
-                border-radius: 12px;
+                border-radius: 10px;  # Slightly reduced radius
             }
         """)
 
         layout = QVBoxLayout(form)
-        layout.setSpacing(16)  # Reduced from 24
+        layout.setSpacing(12)  # Reduced spacing
         layout.setContentsMargins(0, 0, 0, 0)
 
         # Main content area
         content = QWidget()
         content_layout = QVBoxLayout(content)
-        content_layout.setSpacing(24)  # Reduced from 32
+        content_layout.setSpacing(16)  # Reduced spacing
         content_layout.setContentsMargins(0, 0, 0, 0)
 
         # Create sections using modern panels
@@ -160,22 +162,23 @@ class LoginPage(QWidget):
     def create_panel(self, title: str, fields: list) -> QWidget:
         panel = QWidget()
         layout = QGridLayout(panel)
-        layout.setSpacing(16)
-        layout.setContentsMargins(24, 16, 24, 16)
+        layout.setSpacing(12)
+        layout.setContentsMargins(20, 12, 20, 12)
 
         # Title at the top
         title_label = QLabel(title)
-        title_label.setStyleSheet("font-size: 16px; font-weight: 600; color: #0F172A;")
+        title_label.setStyleSheet("font-size: 15px; font-weight: 600; color: #0F172A; margin-bottom: 4px;")
         layout.addWidget(title_label, 0, 0, 1, 2)
 
         # Add fields starting from row 1
         for row, (label_text, placeholder, *opts) in enumerate(fields, start=1):
-            # Label styling
+            # Label styling with fixed width
             label = QLabel(f"{label_text}:")
+            label.setFixedWidth(110)  # Fixed width for alignment
             label.setStyleSheet("""
-                font-size: 14px;
+                font-size: 13px;
                 color: #475569;
-                margin-right: 8px;
+                margin-right: 6px;
             """)
             
             # Input field styling
@@ -187,24 +190,18 @@ class LoginPage(QWidget):
             input_field.setStyleSheet("""
                 QLineEdit {
                     border: 1.5px solid #E2E8F0;
-                    border-radius: 6px;
-                    padding: 8px 12px;
+                    border-radius: 5px;
+                    padding: 6px 10px;
                     background: white;
                     color: #0F172A;
-                    font-size: 14px;
+                    font-size: 13px;
                     margin: 2px 0;
-                    min-height: 20px;
+                    min-height: 16px;
                 }
                 QLineEdit:focus {
                     border: 2px solid #3B82F6;
                 }
             """)
-            
-            # Set size policies to allow natural height
-            input_field.setSizePolicy(
-                QSizePolicy.Policy.Expanding,
-                QSizePolicy.Policy.Minimum
-            )
 
             # Add to grid with proper alignment
             layout.addWidget(label, row, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -212,8 +209,9 @@ class LoginPage(QWidget):
             
             self.login_inputs[label_text] = input_field
 
-        # Set column stretching
+        # Set column stretching for proper alignment
         layout.setColumnStretch(1, 1)
+        layout.setColumnMinimumWidth(0, 120)  # Ensure consistent label column width
         return panel
 
     def handle_connection(self):
@@ -225,13 +223,15 @@ class LoginPage(QWidget):
     def update_ui_state(self):
         is_logged_in = self.auth_state.is_logged_in
         
-        # Update status label
+        # Update status label with new styling
         self.status_label.setText("Connected" if is_logged_in else "Disconnected")
         self.status_label.setStyleSheet(f"""
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 4px;
             color: {'#059669' if is_logged_in else '#94A3B8'};
-            margin-left: 12px;
+            background: {'#ECFDF5' if is_logged_in else '#F1F5F9'};
         """)
 
         # Update button text and style
