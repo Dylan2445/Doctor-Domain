@@ -7,6 +7,8 @@ from pathlib import Path
 from ..state import AuthState
 import json
 from scripts.user_retriever import UserRetriever
+# Import the email sanitizer directly
+from scripts.email_sanitizer import sanitize_emails
 
 class ToolCard(QFrame):
     def __init__(self, title, description, icon_path, script_path):
@@ -118,8 +120,8 @@ class ToolCard(QFrame):
                     temp_path = Path(__file__).parent.parent.parent / 'temp_users.json'
                     with open(temp_path, 'w') as f:
                         json.dump(users, f)
-                    # Now run the actual sanitizer script
-                    subprocess.run(["python", str(self.script_path)], check=True)
+                    # Call the sanitize_emails function directly instead of using subprocess
+                    sanitize_emails()
                 except Exception as e:
                     # Enhanced error message with more context
                     error_details = f"""Failed to retrieve users: {str(e)}

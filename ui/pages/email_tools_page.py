@@ -1,12 +1,28 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QStackedWidget, QMessageBox
 from ..components.tool_card import ToolCard
+from scripts.email_sanitizer import EmailSanitizerPage, sanitize_emails
+from scripts.user_retriever import UserRetriever
+from pathlib import Path
+import json
+from ..state import AuthState
 
 class EmailToolsPage(QWidget):
     def __init__(self):
         super().__init__()
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(12)
+        
+        # Main layout
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(20, 20, 20, 20)
+        self.main_layout.setSpacing(12)
+        
+        # Create stacked widget to switch between tool cards and sanitizer page
+        self.stack = QStackedWidget()
+        
+        # Create tools widget (first page in stack)
+        self.tools_widget = QWidget()
+        tools_layout = QVBoxLayout(self.tools_widget)
+        tools_layout.setContentsMargins(0, 0, 0, 0)
+        tools_layout.setSpacing(12)
 
         # Header
         header = QLabel("Email Management Tools")
@@ -16,7 +32,7 @@ class EmailToolsPage(QWidget):
             color: #1E293B;
             padding-bottom: 5px;
         """)
-        layout.addWidget(header)
+        tools_layout.addWidget(header)
 
         # Cards
         cards_widget = QWidget()
@@ -30,12 +46,17 @@ class EmailToolsPage(QWidget):
         functions_layout.setSpacing(15)
         functions_layout.setContentsMargins(0, 0, 0, 0)
 
+        # Create custom sanitizer card that calls our integrated sanitizer
         sanitizer_card = ToolCard(
             "Email Sanitizer 🧼",
             "Finds and updates any user email addresses that are not intended domains.",
             "sanitize.png",
-            "scripts/email_sanitizer.py"
+            None  # No script path
         )
+        sanitizer_card.run_btn.setText("Run Tool")
+        sanitizer_card.run_btn.setEnabled(True)
+        sanitizer_card.run_btn.clicked.connect(self.open_sanitizer)
+        
         injector_card = ToolCard(
             "Email Injector 💉",
             "Updates all accounts missing an email address by assigning a placeholder domain.",
@@ -56,5 +77,83 @@ class EmailToolsPage(QWidget):
         )
         cards_layout.addWidget(coming_soon_card)
 
-        layout.addWidget(cards_widget)
-        layout.addStretch()
+        tools_layout.addWidget(cards_widget)
+        tools_layout.addStretch()
+        
+        # Create sanitizer page (second page in stack)
+        self.sanitizer_page = EmailSanitizerPage()
+        self.sanitizer_page.back_to_tools_clicked.connect(self.show_tools)
+        
+        # Add both pages to stack
+        self.stack.addWidget(self.tools_widget)
+        self.stack.addWidget(self.sanitizer_page)
+        
+        # Add stack to main layout
+        self.main_layout.addWidget(self.stack)
+        
+        # Start with tools page
+        self.stack.setCurrentWidget(self.tools_widget)
+    
+    def open_sanitizer(self):
+        """Open the email sanitizer page"""
+        # Check if user is logged in
+        auth_state = AuthState.instance()
+        if not auth_state.is_logged_in:
+            QMessageBox.warning(self, "Not Logged In", "Please log in first to use this tool.")
+            return
+            
+        if not auth_state.access_token:
+            QMessageBox.warning(self, "Authentication Error", "No access token found. Please log in again.")
+            return
+        
+        try:
+            # Load settings to get server, library ID and customer ID
+            config_path = Path(__file__).parent.parent.parent / 'config' / 'login_settings.json'
+            if not config_path.exists():
+                QMessageBox.critical(self, "Configuration Error", "Login settings not found. Please configure your account first.")
+                return
+                
+            with open(config_path) as f:
+                settings = json.load(f)
+                
+            server = settings.get('Server')
+            library_id = settings.get('Library ID')
+            customer_id = settings.get('Customer ID')
+            
+            if not all([server, library_id, customer_id]):
+                QMessageBox.critical(self, "Configuration Error", "Missing server, customer ID or library ID in settings.")
+                return
+            
+            # Fetch user list
+            retriever = UserRetriever(server, auth_state.access_token, customer_id, library_id)
+            try:
+                users = retriever.get_user_list()
+                # Store users in a temporary file for the sanitizer script
+                temp_path = Path(__file__).parent.parent.parent / 'temp_users.json'
+                with open(temp_path, 'w') as f:
+                    json.dump(users, f)
+                
+                # Now get the saved users via sanitize_emails
+                loaded_users = sanitize_emails()
+                if loaded_users:
+                    # Load data into sanitizer page
+                    self.sanitizer_page.load_data(loaded_users)
+                    # Switch to sanitizer page
+                    self.stack.setCurrentWidget(self.sanitizer_page)
+            except Exception as e:
+                # Enhanced error message with more context
+                error_details = f"""Failed to retrieve users: {str(e)}
+
+Server URL: https://{server}
+Customer ID: {customer_id}
+Library ID: {library_id}
+Request URL: https://{server}/work/api/v2/customers/{customer_id}/libraries/{library_id}/users
+"""
+                QMessageBox.critical(self, "Error Retrieving Users", error_details)
+                
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to run email sanitizer: {str(e)}")
+    
+    def show_tools(self):
+        """Show the tools page"""
+        self.stack.setCurrentWidget(self.tools_widget)

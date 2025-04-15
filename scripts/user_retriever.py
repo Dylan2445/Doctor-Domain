@@ -95,7 +95,6 @@ Response: {response.text}""")
                     
         return all_users
 
-    def get_user_list(self) -> List[str]:
-        """Returns just the list of user emails"""
-        users = self.get_all_users()
-        return [user['email'] for user in users]
+    def get_user_list(self) -> List[Dict]:
+        """Returns the list of user data containing complete information"""
+        return self.get_all_users()
