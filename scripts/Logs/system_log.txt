@@ -1,0 +1,20 @@
+2025-04-21 15:56:32 - Application starting...
+2025-04-21 15:56:33 - Application UI initialized and displayed
+2025-04-21 15:56:37 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-21 15:56:37 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-21 15:56:38 - Authentication state changed: User logged in
+2025-04-21 15:56:38 - Authentication state changed: User logged in
+2025-04-21 16:09:40 - Application starting...
+2025-04-21 16:09:41 - Application UI initialized and displayed
+2025-04-21 16:09:55 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-21 16:09:55 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-21 16:09:56 - Authentication state changed: User logged in
+2025-04-21 16:09:56 - Authentication state changed: User logged in
+2025-04-21 16:23:02 - Application starting...
+2025-04-21 16:23:02 - Application UI initialized and displayed
+2025-04-21 16:23:23 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-21 16:23:24 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-21 16:23:24 - Authentication state changed: User logged in
+2025-04-21 16:23:24 - Authentication state changed: User logged in
+2025-04-21 16:24:10 - User logout: session ended
+2025-04-21 16:24:10 - Authentication state changed: User logged out

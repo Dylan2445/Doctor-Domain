@@ -9,8 +9,9 @@ from ui.navigation import NavigationButton
 from ui.pages.email_tools_page import EmailToolsPage
 from ui.pages.login_page import LoginPage
 from ui.pages.settings_page import SettingsPage
-from ui.pages.coming_soon_page import ComingSoonPage
+from ui.pages.logs_page import LogsPage
 from ui.state import AuthState
+from ui.utils import log_message
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -59,13 +60,14 @@ class MainWindow(QMainWindow):
         self.email_tools_btn = NavigationButton("📧 Email Tools", "email.png")
         self.login_btn = NavigationButton("🔑 Account", "login.png")
         self.settings_btn = NavigationButton("⚙️ Settings", "settings.png")
-        self.coming_soon_btn = NavigationButton("🔜 Coming Soon", "soon.png")
+        self.logs_btn = NavigationButton("📋 Logs", "logs.png")
         
         nav_layout.addWidget(self.email_tools_btn)
         nav_layout.addWidget(self.login_btn)
         nav_layout.addWidget(self.settings_btn)
-        nav_layout.addWidget(self.coming_soon_btn)
-        nav_layout.addStretch()
+        nav_layout.addStretch()  # Push logs to bottom
+        nav_layout.addWidget(self.logs_btn)
+        nav_layout.addSpacing(10)  # Add spacing at bottom
 
         # Main content area
         content_area = QWidget()
@@ -84,7 +86,7 @@ class MainWindow(QMainWindow):
             'email': EmailToolsPage(),
             'login': LoginPage(on_login=self.on_login_success),
             'settings': SettingsPage(),
-            'coming_soon': ComingSoonPage()
+            'logs': LogsPage()
         }
 
         for page in self.pages.values():
@@ -94,7 +96,7 @@ class MainWindow(QMainWindow):
         self.email_tools_btn.clicked.connect(lambda: self.switch_page('email'))
         self.login_btn.clicked.connect(lambda: self.switch_page('login'))
         self.settings_btn.clicked.connect(lambda: self.switch_page('settings'))
-        self.coming_soon_btn.clicked.connect(lambda: self.switch_page('coming_soon'))
+        self.logs_btn.clicked.connect(lambda: self.switch_page('logs'))
 
         # Add to main layout
         layout.addWidget(nav_panel)
@@ -130,7 +132,7 @@ class MainWindow(QMainWindow):
             'email': self.email_tools_btn,
             'login': self.login_btn,
             'settings': self.settings_btn,
-            'coming_soon': self.coming_soon_btn
+            'logs': self.logs_btn
         }
         
         for pid, btn in buttons.items():
@@ -146,6 +148,14 @@ class MainWindow(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
+    
+    # Log application startup
+    log_message("Application starting...")
+    
     window = MainWindow()
     window.show()
+    
+    # Log successful startup
+    log_message("Application UI initialized and displayed")
+    
     sys.exit(app.exec())

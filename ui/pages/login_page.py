@@ -9,6 +9,7 @@ import urllib3
 from pathlib import Path
 from typing import Callable, Optional
 from ..state import AuthState
+from ..utils import log_message
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -277,6 +278,7 @@ class LoginPage(QWidget):
         self.clear_btn.setVisible(not is_logged_in)
 
     def handle_logout(self):
+        log_message(f"User logout: session ended")
         self.auth_state.logout()
         self.show_message("Success", "You have been logged out successfully.", QMessageBox.Icon.Information)
 
@@ -290,6 +292,7 @@ class LoginPage(QWidget):
 
         # Validate required fields
         if not all([server, username, password, client_id]):
+            log_message(f"Login attempt failed: Missing required fields")
             self.show_message("Error", "Please fill in all required fields.", QMessageBox.Icon.Warning)
             return
 
@@ -312,6 +315,9 @@ class LoginPage(QWidget):
 
             url = f'https://{server}/auth/oauth2/token'
             
+            # Log login attempt
+            log_message(f"Login attempt: {username} to server {server}")
+            
             # Create URL string for display (for debugging/error messages)
             param_str = '&'.join([f"{k}={v}" for k, v in body_params.items()])
 
@@ -326,12 +332,19 @@ class LoginPage(QWidget):
             if response.status_code == 200:
                 access_token = response.json()['access_token']
                 self.save_login_settings()  # Save successful login details
+                
+                # Log successful login
+                log_message(f"Login successful: {username} authenticated to server {server}")
+                
                 self.show_message("Success", "Login successful!", QMessageBox.Icon.Information)
                 if self.on_login:
                     self.on_login(access_token)
                 self.auth_state.login(access_token)
                 return access_token
             else:
+                # Log failed login
+                log_message(f"Login failed: {username} to server {server} - Status code {response.status_code}")
+                
                 self.show_message(
                     "Login Failed", 
                     f"Sign in unsuccessful.\nURL: {url}\nBody Parameters:\n{param_str}\n\nStatus code: {response.status_code}\n{response.text}", 
@@ -339,12 +352,18 @@ class LoginPage(QWidget):
                 )
 
         except requests.exceptions.RequestException as e:
+            # Log connection error
+            log_message(f"Connection error during login: {username} to server {server} - {str(e)}")
+            
             self.show_message(
                 "Error", 
                 f"Connection error:\nURL: {url}\nBody Parameters:\n{param_str}\n\nError: {str(e)}", 
                 QMessageBox.Icon.Critical
             )
         except Exception as e:
+            # Log unexpected error
+            log_message(f"Unexpected error during login: {str(e)}")
+            
             self.show_message(
                 "Error", 
                 f"Unexpected error:\nURL: {url}\nBody Parameters:\n{param_str}\n\nError: {str(e)}", 

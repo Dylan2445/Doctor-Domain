@@ -1,4 +1,5 @@
 from typing import Optional, Callable
+from .utils import log_message
 
 class AuthState:
     _instance = None
@@ -34,11 +35,13 @@ class AuthState:
         return self._access_token
 
     def login(self, access_token: str):
+        log_message("Authentication state changed: User logged in")
         self._access_token = access_token
         self._is_logged_in = True
         self._notify_listeners()
 
     def logout(self):
+        log_message("Authentication state changed: User logged out")
         self._access_token = None
         self._is_logged_in = False
         self._notify_listeners()
