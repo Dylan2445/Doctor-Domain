@@ -749,7 +749,8 @@ class EmailSanitizerPage(QWidget):
         
         # Form container
         form = QFrame()
-        form.setFixedWidth(580)
+        # Remove fixed width to allow proper scaling with window size
+        form.setMinimumWidth(580)
         form.setStyleSheet("""
             QFrame {
                 background-color: white;
@@ -766,25 +767,49 @@ class EmailSanitizerPage(QWidget):
         content = QWidget()
         content_layout = QVBoxLayout(content)
         content_layout.setSpacing(16)
-        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setContentsMargins(20, 16, 20, 16)
         
-        # Domain Source Panel
-        domain_source_panel = self.create_panel("Domain Source", [
-            ("Select how to identify company domains for sanitization", "")
-        ])
+        # Description text with word wrap explicitly enabled
+        description = QLabel("This tool identifies external and internal users by analyzing email domains, "
+                            "and helps sanitize email addresses for disabled accounts.")
+        description.setWordWrap(True)
+        description.setStyleSheet("""
+            color: #475569;
+            font-size: 14px;
+            margin-bottom: 10px;
+        """)
+        content_layout.addWidget(description)
         
-        # Use a grid layout for the radio buttons
+        # Domain selection section - ensure text wraps properly
+        domain_section_label = QLabel("Domain Source")
+        domain_section_label.setStyleSheet("""
+            font-size: 15px;
+            font-weight: 600;
+            color: #0F172A;
+            margin-top: 8px;
+        """)
+        content_layout.addWidget(domain_section_label)
+        
+        # Radio buttons in clean layout with improved text handling
         radio_container = QWidget()
-        radio_layout = QGridLayout(radio_container)
-        radio_layout.setContentsMargins(20, 0, 20, 12)
+        radio_container.setStyleSheet("""
+            background-color: #F8FAFC;
+            border-radius: 8px;
+            padding: 4px;
+        """)
+        radio_layout = QVBoxLayout(radio_container)
+        radio_layout.setContentsMargins(16, 12, 16, 12)
+        radio_layout.setSpacing(12)
         
-        self.provide_domains_radio = QRadioButton("Provide company domains")
+        # Option 1 with better text wrapping
+        self.provide_domains_radio = QRadioButton("Provide company domains manually")
         self.provide_domains_radio.setChecked(True)
         self.provide_domains_radio.setStyleSheet("""
             QRadioButton {
                 font-size: 14px;
                 color: #1E293B;
-                padding: 6px 0;
+                padding: 4px 0;
+                min-height: 24px;
             }
             QRadioButton::indicator {
                 width: 18px;
@@ -792,12 +817,14 @@ class EmailSanitizerPage(QWidget):
             }
         """)
         
-        self.discover_domains_radio = QRadioButton("Automatically discover domains")
+        # Option 2 with better text wrapping
+        self.discover_domains_radio = QRadioButton("Automatically discover domains from user data")
         self.discover_domains_radio.setStyleSheet("""
             QRadioButton {
                 font-size: 14px;
                 color: #1E293B;
-                padding: 6px 0;
+                padding: 4px 0;
+                min-height: 24px;
             }
             QRadioButton::indicator {
                 width: 18px;
@@ -805,21 +832,76 @@ class EmailSanitizerPage(QWidget):
             }
         """)
         
-        radio_layout.addWidget(self.provide_domains_radio, 0, 0)
-        radio_layout.addWidget(self.discover_domains_radio, 1, 0)
+        radio_layout.addWidget(self.provide_domains_radio)
+        radio_layout.addWidget(self.discover_domains_radio)
         
-        # Add radio container to domain source panel
-        domain_source_panel.layout().addWidget(radio_container)
-        content_layout.addWidget(domain_source_panel)
+        content_layout.addWidget(radio_container)
         
-        # Company Domains Panel - will be toggled based on radio selection
-        self.domains_panel = self.create_panel("Company Domains", [
-            ("Domains", "example.com, company.org", False, "Enter the company domains for identifying external accounts"),
-        ])
-        content_layout.addWidget(self.domains_panel)
+        # Domain input section - INCREASED WIDTH for better text visibility
+        domain_input_container = QWidget()
+        domain_input_layout = QGridLayout(domain_input_container)
+        domain_input_layout.setContentsMargins(0, 8, 0, 0)
+        domain_input_layout.setVerticalSpacing(8)
+        domain_input_layout.setHorizontalSpacing(12)
         
-        # Connect radio buttons to toggle domain panel visibility
-        self.provide_domains_radio.toggled.connect(self.toggle_domain_panel)
+        # Domain label with increased width
+        domain_label = QLabel("Company Domains:")
+        domain_label.setFixedWidth(130)  # Increased from 110 to 130
+        domain_label.setStyleSheet("""
+            font-size: 14px;
+            color: #475569;
+        """)
+        
+        # Domain input field
+        self.domain_input = QLineEdit()
+        self.domain_input.setPlaceholderText("example.com, company.org")
+        self.domain_input.setStyleSheet("""
+            QLineEdit {
+                border: 1.5px solid #E2E8F0;
+                border-radius: 5px;
+                padding: 8px 12px;
+                background: white;
+                color: #0F172A;
+                font-size: 14px;
+            }
+            QLineEdit:focus {
+                border: 2px solid #3B82F6;
+            }
+        """)
+        
+        # Help text
+        help_text = QLabel("Enter multiple domains separated by commas")
+        help_text.setStyleSheet("""
+            font-size: 12px;
+            color: #64748B;
+            font-style: italic;
+        """)
+        
+        domain_input_layout.addWidget(domain_label, 0, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        domain_input_layout.addWidget(self.domain_input, 0, 1)
+        domain_input_layout.addWidget(help_text, 1, 1)
+        
+        # Add domain input section to layout
+        self.domain_input_section = domain_input_container
+        content_layout.addWidget(domain_input_container)
+        
+        # Additional info
+        info_container = QWidget()
+        info_layout = QVBoxLayout(info_container)
+        info_layout.setContentsMargins(0, 16, 0, 8)
+        
+        info_text = QLabel("Note: Only disabled users will be processed for email sanitization.")
+        info_text.setStyleSheet("""
+            color: #64748B;
+            font-style: italic;
+            font-size: 13px;
+        """)
+        
+        info_layout.addWidget(info_text)
+        content_layout.addWidget(info_container)
+        
+        # Connect radio buttons
+        self.provide_domains_radio.toggled.connect(self.toggle_domain_input)
         
         # Add content to form
         form_layout.addWidget(content)
@@ -902,88 +984,26 @@ class EmailSanitizerPage(QWidget):
         
         return panel
     
+    # Replace the create_panel method with a simpler version
     def create_panel(self, title, fields):
         """Create a panel with fields, styled like account page panels"""
         panel = QWidget()
-        panel.setStyleSheet("""
-            QWidget {
-                background-color: white;
-                border: 1px solid #E2E8F0;
-                border-radius: 4px;
-            }
-        """)
         
-        layout = QGridLayout(panel)
-        layout.setSpacing(12)
-        layout.setContentsMargins(20, 16, 20, 16)
+        layout = QVBoxLayout(panel)
+        layout.setSpacing(8)
+        layout.setContentsMargins(0, 0, 0, 16)
         
         # Title at the top
         title_label = QLabel(title)
         title_label.setStyleSheet("font-size: 15px; font-weight: 600; color: #0F172A; margin-bottom: 4px;")
-        layout.addWidget(title_label, 0, 0, 1, 2)
-        
-        # Add fields
-        row = 1
-        for field_data in fields:
-            if len(field_data) == 2:  # Just a label and description
-                label_text, desc = field_data
-                desc_label = QLabel(desc)
-                desc_label.setStyleSheet("font-size: 13px; color: #64748B;")
-                layout.addWidget(desc_label, row, 0, 1, 2)
-                row += 1
-            else:  # Full field with input
-                label_text, placeholder, is_password, *desc = field_data
-                
-                # Label
-                label = QLabel(f"{label_text}:")
-                label.setFixedWidth(80)
-                label.setStyleSheet("""
-                    font-size: 13px;
-                    color: #475569;
-                    margin-right: 6px;
-                """)
-                
-                # Input field
-                input_field = QLineEdit()
-                input_field.setPlaceholderText(placeholder)
-                if is_password:
-                    input_field.setEchoMode(QLineEdit.EchoMode.Password)
-                
-                input_field.setStyleSheet("""
-                    QLineEdit {
-                        border: 1.5px solid #E2E8F0;
-                        border-radius: 5px;
-                        padding: 8px 12px;
-                        background: white;
-                        color: #0F172A;
-                        font-size: 13px;
-                    }
-                    QLineEdit:focus {
-                        border: 2px solid #3B82F6;
-                    }
-                """)
-                
-                # Add to layout
-                layout.addWidget(label, row, 0, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-                layout.addWidget(input_field, row, 1)
-                row += 1
-                
-                # Store reference if needed
-                if label_text == "Domains":
-                    self.domain_input = input_field
-                
-                # Add description if available
-                if desc:
-                    desc_label = QLabel(desc[0])
-                    desc_label.setStyleSheet("font-size: 12px; color: #94A3B8; font-style: italic;")
-                    layout.addWidget(desc_label, row, 1)
-                    row += 1
-        
-        # Set column stretching for proper alignment
-        layout.setColumnStretch(1, 1)
+        layout.addWidget(title_label)
         
         return panel
     
+    def toggle_domain_input(self, checked):
+        """Toggle visibility of domain input section based on radio selection"""
+        self.domain_input_section.setVisible(checked)
+        
     def create_progress_widget(self):
         """Create the progress indicator widget"""
         widget = QWidget()
@@ -1186,16 +1206,17 @@ class EmailSanitizerPage(QWidget):
         layout.addStretch()
         
         return widget
-    
+
     def create_user_table_widget(self):
         """Create the user table display widget"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
         
-        # User table frame
+        # User table frame - no fixed width, use minimum width instead
         table_frame = QFrame()
-        table_frame.setFixedWidth(580)
+        table_frame.setMinimumWidth(900)
+        table_frame.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         table_frame.setStyleSheet("""
             QFrame {
                 background-color: white;
@@ -1208,7 +1229,7 @@ class EmailSanitizerPage(QWidget):
         table_layout.setContentsMargins(0, 0, 0, 0)
         table_layout.setSpacing(0)
         
-        # Header
+        # Header with cleaner style
         header = QWidget()
         header_layout = QVBoxLayout(header)
         header_layout.setContentsMargins(24, 20, 24, 20)
@@ -1222,38 +1243,56 @@ class EmailSanitizerPage(QWidget):
         header_layout.addWidget(users_title)
         header_layout.addWidget(self.user_count)
         
-        # Table
+        # Table container with improved styling and vertical stretch
         table_container = QWidget()
+        table_container.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         table_layout_container = QVBoxLayout(table_container)
-        table_layout_container.setContentsMargins(20, 0, 20, 20)
+        table_layout_container.setContentsMargins(16, 0, 16, 16)
         
         self.user_table = QTableWidget()
+        self.user_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.user_table.setMinimumHeight(400)  # Enforce minimum height
         self.user_table.setColumnCount(4)
         self.user_table.setHorizontalHeaderLabels(["UserID", "Sign in Status", "Full Name", "Email"])
         self.user_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.user_table.horizontalHeader().setMinimumHeight(40)
         self.user_table.setStyleSheet("""
             QTableWidget {
                 border: 1px solid #E2E8F0;
                 border-radius: 4px;
-                gridline-color: #F1F5F9;
+                gridline-color: #E2E8F0;
                 color: #1E293B;
+                background-color: white;
+                alternate-background-color: #F8FAFC;
+                selection-background-color: #EFF6FF;
+                selection-color: #1E293B;
             }
             QTableWidget::item {
-                padding: 6px;
-                color: #1E293B;
+                padding: 8px;
+                border-bottom: 1px solid #F1F5F9;
+            }
+            QTableWidget::item:selected {
+                background-color: #EFF6FF;
             }
             QHeaderView::section {
-                background-color: #F8FAFC;
+                background-color: #F1F5F9;
                 border: 1px solid #E2E8F0;
-                padding: 6px;
-                font-weight: bold;
-                color: #1E293B;
+                padding: 8px;
+                font-weight: 600;
+                color: #0F172A;
+                font-size: 13px;
             }
         """)
         
+        # Enhanced table appearance
+        self.user_table.setShowGrid(True)
+        self.user_table.setAlternatingRowColors(True)
+        self.user_table.verticalHeader().setVisible(False)
+        self.user_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        
         table_layout_container.addWidget(self.user_table)
         
-        # Action panel
+        # Action panel with consistent style
         action_panel = QWidget()
         action_panel.setStyleSheet("""
             background: #F8FAFC;
@@ -1347,13 +1386,29 @@ class EmailSanitizerPage(QWidget):
     def populate_user_table(self):
         """Populate the user table with data"""
         self.user_table.setRowCount(len(self.users))
+        
+        # Calculate appropriate row height based on available space
+        available_height = self.user_table.height() - self.user_table.horizontalHeader().height()
+        row_height = max(40, min(60, available_height / max(len(self.users), 1)))
+        
         for row, user in enumerate(self.users):
             if isinstance(user, str):
                 # If user is just a string (email)
-                self.user_table.setItem(row, 0, QTableWidgetItem("N/A"))
-                self.user_table.setItem(row, 1, QTableWidgetItem("N/A"))
-                self.user_table.setItem(row, 2, QTableWidgetItem("N/A"))
-                self.user_table.setItem(row, 3, QTableWidgetItem(user))
+                id_item = QTableWidgetItem("N/A")
+                status_item = QTableWidgetItem("N/A")
+                name_item = QTableWidgetItem("N/A")
+                email_item = QTableWidgetItem(user)
+                
+                # Clear styling without custom backgrounds that can conflict with alternating rows
+                id_item.setForeground(QColor("#1E293B"))
+                status_item.setForeground(QColor("#1E293B"))
+                name_item.setForeground(QColor("#1E293B"))
+                email_item.setForeground(QColor("#1E293B"))
+                
+                self.user_table.setItem(row, 0, id_item)
+                self.user_table.setItem(row, 1, status_item)
+                self.user_table.setItem(row, 2, name_item)
+                self.user_table.setItem(row, 3, email_item)
             else:
                 # Extract user fields
                 user_id = user.get('id', 'N/A')
@@ -1361,13 +1416,13 @@ class EmailSanitizerPage(QWidget):
                 full_name = user.get('full_name', 'N/A')
                 email = user.get('email', 'N/A')
                 
-                # Create table items with explicit colors
+                # Create table items with just text color styling
                 id_item = QTableWidgetItem(user_id)
                 id_item.setForeground(QColor("#1E293B"))
                 
                 status_item = QTableWidgetItem(allow_logon)
                 if allow_logon == "Disabled":
-                    status_item.setForeground(QColor("#DC2626"))  # Red for disabled
+                    status_item.setForeground(QColor("#DC2626"))  # Bright red for disabled
                 else:
                     status_item.setForeground(QColor("#059669"))  # Green for enabled
                 
@@ -1381,6 +1436,17 @@ class EmailSanitizerPage(QWidget):
                 self.user_table.setItem(row, 1, status_item)
                 self.user_table.setItem(row, 2, name_item)
                 self.user_table.setItem(row, 3, email_item)
+                
+        # Apply consistent row heights with calculated value
+        for i in range(len(self.users)):
+            self.user_table.setRowHeight(i, int(row_height))
+        
+        # Resize columns to content first, then apply stretching
+        self.user_table.resizeColumnsToContents()
+        self.user_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        
+        # Ensure table expands to fill available space
+        self.user_table.updateGeometry()
     
     def display_results(self, results):
         """Display results in the results table"""
