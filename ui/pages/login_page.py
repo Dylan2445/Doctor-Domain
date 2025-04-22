@@ -110,7 +110,7 @@ class LoginPage(QWidget):
         action_panel = QWidget()
         action_panel.setStyleSheet("""
             QWidget {
-                background: #F8FAFC;
+                background: white;
                 border-top: 1px solid #E2E8F0;
             }
         """)

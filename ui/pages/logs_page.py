@@ -33,6 +33,32 @@ class LogsPage(QWidget):
         self.consolidate_logs(force=True)  # Combine existing logs initially
         self.refresh_log()
         self.update_timer.start()
+        
+        # Reference to main window (will be set by main application)
+        self.main_window = None
+        
+    def set_main_window(self, main_window):
+        """Set reference to main window for accessing global functionality"""
+        self.main_window = main_window
+        
+        # Update toggle button state to match the overlay visibility
+        self.update_overlay_toggle_state()
+        
+        # Connect the toggle button to the main window's toggle function
+        self.overlay_toggle_btn.clicked.connect(self.toggle_overlay)
+        
+    def toggle_overlay(self):
+        """Toggle the log overlay visibility using main window's function"""
+        if self.main_window:
+            self.main_window.toggle_log_overlay()
+            self.update_overlay_toggle_state()
+            
+    def update_overlay_toggle_state(self):
+        """Update the toggle button state to match the overlay visibility"""
+        if self.main_window and hasattr(self.main_window, 'log_overlay'):
+            is_visible = self.main_window.log_overlay.isVisible()
+            self.overlay_toggle_btn.setChecked(is_visible)
+            self.overlay_toggle_btn.setText("Hide Overlay" if is_visible else "Show Overlay")
     
     def setup_ui(self):
         # Main layout with proper margins for clean appearance
@@ -88,10 +114,32 @@ class LogsPage(QWidget):
         """)
         self.auto_refresh_btn.toggled.connect(self.toggle_auto_refresh)
         
+        # Log overlay toggle button
+        self.overlay_toggle_btn = QPushButton("Show Overlay")
+        self.overlay_toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.overlay_toggle_btn.setCheckable(True)
+        self.overlay_toggle_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #EFF6FF;
+                color: #3B82F6;
+                border: none;
+                border-radius: 4px;
+                padding: 4px 10px;
+                font-size: 12px;
+                font-weight: 500;
+                margin-left: 6px;
+            }
+            QPushButton:checked {
+                background-color: #DBEAFE;
+                color: #2563EB;
+            }
+        """)
+        
         header_layout.addWidget(header)
         header_layout.addWidget(self.status_label, alignment=Qt.AlignmentFlag.AlignVCenter)
         header_layout.addStretch()
         header_layout.addWidget(self.auto_refresh_btn)
+        header_layout.addWidget(self.overlay_toggle_btn)
         
         main_layout.addWidget(header_container)
         
@@ -243,9 +291,6 @@ class LogsPage(QWidget):
                     if not file_content.strip():
                         continue
                     
-                    # Add file identifier line if file isn't empty
-                    source_marker = f"[Source: {log_file.name}]"
-                    
                     # Process each line
                     for line in file_content.splitlines():
                         line = line.strip()
@@ -253,12 +298,12 @@ class LogsPage(QWidget):
                         if line:
                             # Check if line already has a timestamp
                             if line[:19].count('-') == 2 and line[:19].count(':') == 2:
-                                # Line already has timestamp
-                                full_entry = f"{line} {source_marker}"
+                                # Line already has timestamp, don't add source marker
+                                full_entry = line
                             else:
                                 # Add current timestamp if missing
                                 timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                                full_entry = f"{timestamp} - {line} {source_marker}"
+                                full_entry = f"{timestamp} - {line}"
                             
                             # Check if we've seen this entry before using the hash
                             entry_hash = self.get_hash(full_entry)
@@ -306,7 +351,7 @@ class LogsPage(QWidget):
                 
                 # Only update UI if content is actually different to avoid flicker
                 if was_updated or self.log_content.toPlainText() != content:
-                    # Format log content with colored timestamps and sources
+                    # Format log content with colored timestamps and without source
                     formatted_content = ""
                     for line in content.splitlines():
                         # Skip empty lines
@@ -316,23 +361,17 @@ class LogsPage(QWidget):
                         # Check if line contains a timestamp pattern (YYYY-MM-DD HH:MM:SS)
                         if line[:19].count('-') == 2 and line[:19].count(':') == 2:
                             timestamp = line[:19]
+                            message = line[20:].strip()  # Skip the hyphen and space after timestamp
                             
-                            # Extract source if present
-                            source_start = line.rfind('[Source:')
+                            # Remove source marker if present (completely remove, no conditional check)
+                            source_start = message.find('[Source:')
                             if source_start > -1:
-                                message = line[19:source_start].strip()
-                                source = line[source_start:]
-                                formatted_content += (
-                                    f"<span style='color:#3B82F6;'>{timestamp}</span> - "
-                                    f"<span style='color:#1E293B;'>{message}</span> "
-                                    f"<span style='color:#64748B; font-style:italic; font-size:11px;'>{source}</span><br>"
-                                )
-                            else:
-                                message = line[19:]
-                                formatted_content += (
-                                    f"<span style='color:#3B82F6;'>{timestamp}</span> - "
-                                    f"<span style='color:#1E293B;'>{message}</span><br>"
-                                )
+                                message = message[:source_start].strip()
+                                
+                            formatted_content += (
+                                f"<span style='color:#3B82F6;'>{timestamp}</span> - "
+                                f"<span style='color:#1E293B;'>{message}</span><br>"
+                            )
                         else:
                             formatted_content += f"<span style='color:#1E293B;'>{line}</span><br>"
                     
@@ -361,44 +400,16 @@ class LogsPage(QWidget):
     
     def clear_logs(self):
         """Clear all logs after confirmation"""
-        confirm = QMessageBox()
-        confirm.setIcon(QMessageBox.Icon.Warning)
-        confirm.setText("Are you sure you want to clear all logs? This cannot be undone.")
-        confirm.setWindowTitle("Confirm Clear Logs")
-        confirm.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-        confirm.setDefaultButton(QMessageBox.StandardButton.No)
-        confirm.setStyleSheet("""
-            QMessageBox {
-                background-color: white;
-            }
-            QMessageBox QLabel {
-                color: #1E293B;
-                font-size: 14px;
-                padding: 10px;
-            }
-            QMessageBox QPushButton {
-                padding: 6px 14px;
-                border-radius: 4px;
-                font-size: 13px;
-                font-weight: 500;
-            }
-            QMessageBox QPushButton[text="Yes"] {
-                background-color: #DC2626;
-                color: white;
-                border: none;
-            }
-            QMessageBox QPushButton[text="Yes"]:hover {
-                background-color: #B91C1C;
-            }
-            QMessageBox QPushButton[text="No"] {
-                background-color: #E2E8F0;
-                color: #475569;
-                border: none;
-            }
-            QMessageBox QPushButton[text="No"]:hover {
-                background-color: #CBD5E1;
-            }
-        """)
+        from ui.utils import create_styled_message_box
+        
+        confirm = create_styled_message_box(
+            self,
+            title="Confirm Clear Logs",
+            text="Are you sure you want to clear all logs? This cannot be undone.",
+            icon=QMessageBox.Icon.Warning,
+            buttons=QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            default_button=QMessageBox.StandardButton.No
+        )
         
         if confirm.exec() == QMessageBox.StandardButton.Yes:
             try:
@@ -406,7 +417,19 @@ class LogsPage(QWidget):
                 self.log_entry_hashes.clear()
                 self.last_file_modified_times.clear()
                 
-                # Write a fresh start message
+                # Clear all individual log files - use glob.glob to ensure we get all files
+                import glob
+                log_files = glob.glob(str(self.log_dir / "*.txt"))
+                for log_file_path in log_files:
+                    log_file = Path(log_file_path)
+                    try:
+                        # Empty the file contents while preserving the file
+                        with open(log_file, 'w', encoding='utf-8') as f:
+                            f.write("")
+                    except Exception as e:
+                        print(f"Error clearing log file {log_file}: {str(e)}")
+                
+                # Write a fresh start message to consolidated log
                 with open(self.log_file, 'w', encoding='utf-8') as f:
                     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     f.write(f"{timestamp} - Logs cleared by user\n")
@@ -415,10 +438,17 @@ class LogsPage(QWidget):
                 entry_hash = self.get_hash(f"{timestamp} - Logs cleared by user")
                 self.log_entry_hashes.add(entry_hash)
                 
+                # Ensure we update the status immediately
                 self.refresh_log()
-                self.status_label.setText("Logs cleared")
+                self.status_label.setText("All logs cleared successfully")
             except Exception as e:
-                QMessageBox.critical(self, "Error", f"Failed to clear logs: {str(e)}")
+                error_box = create_styled_message_box(
+                    self,
+                    title="Error",
+                    text=f"Failed to clear logs: {str(e)}",
+                    icon=QMessageBox.Icon.Critical
+                )
+                error_box.exec()
     
     def closeEvent(self, event):
         """Stop timer when widget is closed"""

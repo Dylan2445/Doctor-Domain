@@ -1,24 +1,100 @@
-2025-04-15 14:27:40 - Retrieving company email domains... [Source: classifyscriptlog.txt]
-2025-04-15 14:27:40 - Classifying users as internal or external based on domain match with 'imanage.com' or similarity... [Source: classifyscriptlog.txt]
-2025-04-15 15:15:25 - Retrieving company email domains... [Source: classifyscriptlog.txt]
-2025-04-15 15:15:25 - Classifying users as internal or external based on domain match with 'imanage.com' or similarity... [Source: classifyscriptlog.txt]
-2025-04-21 15:56:32 - Application starting... [Source: system_log.txt]
-2025-04-21 15:56:33 - Application UI initialized and displayed [Source: system_log.txt]
-2025-04-21 15:56:37 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com [Source: system_log.txt]
-2025-04-21 15:56:37 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com [Source: system_log.txt]
-2025-04-21 15:56:38 - Authentication state changed: User logged in [Source: system_log.txt]
-2025-04-21 15:57:26 - Retrieving company email domains... [Source: classifyscriptlog.txt]
-2025-04-21 15:57:26 - Classifying users as internal or external based on domain match with 'imanage.com' or similarity... [Source: classifyscriptlog.txt]
-2025-04-21 16:09:40 - Application starting... [Source: system_log.txt]
-2025-04-21 16:09:41 - Application UI initialized and displayed [Source: system_log.txt]
-2025-04-21 16:09:55 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com [Source: system_log.txt]
-2025-04-21 16:09:55 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com [Source: system_log.txt]
-2025-04-21 16:09:56 - Authentication state changed: User logged in [Source: system_log.txt]
-2025-04-21 16:23:02 - Application starting... [Source: system_log.txt]
-2025-04-21 16:23:02 - Application UI initialized and displayed [Source: system_log.txt]
-2025-04-21 16:23:16 - Logs cleared by user
-2025-04-21 16:23:23 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com [Source: system_log.txt]
-2025-04-21 16:23:24 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com [Source: system_log.txt]
-2025-04-21 16:23:24 - Authentication state changed: User logged in [Source: system_log.txt]
-2025-04-21 16:24:10 - User logout: session ended [Source: system_log.txt]
-2025-04-21 16:24:10 - Authentication state changed: User logged out [Source: system_log.txt]
+2025-04-22 11:42:41 - Logs cleared by user
+2025-04-22 11:42:43 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-22 11:42:44 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 236
+2025-04-22 11:42:44 - Function get_user_list: SUCCESS - users_count: 236
+2025-04-22 11:42:44 - Function email_sanitizer: SUCCESS - users_count: 236
+2025-04-22 11:43:00 - User logout: session ended
+2025-04-22 11:43:00 - Authentication state changed: User logged out
+2025-04-22 11:43:04 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-22 11:43:04 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-22 11:43:05 - Authentication state changed: User logged in
+2025-04-22 11:43:19 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-22 11:43:19 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 236
+2025-04-22 11:43:19 - Function get_user_list: SUCCESS - users_count: 236
+2025-04-22 11:43:19 - Function email_sanitizer: SUCCESS - users_count: 236
+2025-04-22 12:05:50 - Application starting...
+2025-04-22 12:05:51 - Application UI initialized and displayed
+2025-04-22 12:40:46 - Application starting...
+2025-04-22 12:40:47 - Application UI initialized and displayed
+2025-04-22 12:52:09 - Application starting...
+2025-04-22 12:52:10 - Application UI initialized and displayed
+2025-04-22 12:52:15 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-22 12:52:15 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-22 12:52:16 - Authentication state changed: User logged in
+2025-04-22 13:01:08 - Application starting...
+2025-04-22 13:01:09 - Application UI initialized and displayed
+2025-04-22 13:06:39 - Application starting...
+2025-04-22 13:06:40 - Application UI initialized and displayed
+2025-04-22 13:06:59 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-22 13:06:59 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-22 13:07:00 - Authentication state changed: User logged in
+2025-04-22 13:07:01 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-22 13:07:01 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 236
+2025-04-22 13:07:01 - Function get_user_list: SUCCESS - users_count: 236
+2025-04-22 13:07:01 - Function email_sanitizer: SUCCESS - users_count: 236
+2025-04-22 13:23:00 - Application starting...
+2025-04-22 13:23:01 - Application UI initialized and displayed
+2025-04-22 13:35:21 - Application starting...
+2025-04-22 13:35:22 - Application UI initialized and displayed
+2025-04-22 13:38:38 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-22 13:38:38 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-22 13:38:39 - Authentication state changed: User logged in
+2025-04-22 13:40:54 - Application starting...
+2025-04-22 13:40:55 - Application UI initialized and displayed
+2025-04-22 13:41:15 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-22 13:41:15 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-22 13:41:16 - Authentication state changed: User logged in
+2025-04-22 13:41:46 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-22 13:41:47 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 236
+2025-04-22 13:41:47 - Function get_user_list: SUCCESS - users_count: 236
+2025-04-22 13:41:47 - Function email_sanitizer: SUCCESS - users_count: 236
+2025-04-22 13:58:46 - Application starting...
+2025-04-22 13:58:47 - Application UI initialized and displayed
+2025-04-22 14:03:17 - Application starting...
+2025-04-22 14:03:18 - Application UI initialized and displayed
+2025-04-22 14:03:59 - Application starting...
+2025-04-22 14:04:00 - Application UI initialized and displayed
+2025-04-22 14:06:45 - Application starting...
+2025-04-22 14:06:46 - Application UI initialized and displayed
+2025-04-22 14:08:31 - Application starting...
+2025-04-22 14:08:32 - Application UI initialized and displayed
+2025-04-22 14:11:16 - Application starting...
+2025-04-22 14:11:17 - Application UI initialized and displayed
+2025-04-22 14:14:07 - Application starting...
+2025-04-22 14:14:08 - Application UI initialized and displayed
+2025-04-22 14:17:05 - Application starting...
+2025-04-22 14:17:06 - Application UI initialized and displayed
+2025-04-22 14:23:50 - Application starting...
+2025-04-22 14:23:51 - Application UI initialized and displayed
+2025-04-22 14:26:35 - Application starting...
+2025-04-22 14:26:36 - Application UI initialized and displayed
+2025-04-22 15:19:57 - Application starting...
+2025-04-22 15:19:58 - Application UI initialized and displayed
+2025-04-22 15:25:41 - Application starting...
+2025-04-22 15:25:42 - Application UI initialized and displayed
+2025-04-22 15:26:24 - Application starting...
+2025-04-22 15:26:25 - Application UI initialized and displayed
+2025-04-22 15:26:41 - Application starting...
+2025-04-22 15:26:42 - Application UI initialized and displayed
+2025-04-22 15:27:00 - Application starting...
+2025-04-22 15:27:01 - Application UI initialized and displayed
+2025-04-22 15:27:30 - Application starting...
+2025-04-22 15:27:31 - Application UI initialized and displayed
+2025-04-22 15:29:48 - Application starting...
+2025-04-22 15:29:49 - Application UI initialized and displayed
+2025-04-22 15:40:48 - Application starting...
+2025-04-22 15:40:49 - Application UI initialized and displayed
+2025-04-22 15:41:05 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-22 15:41:05 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-22 15:41:07 - Authentication state changed: User logged in
+2025-04-22 15:41:40 - User logout: session ended
+2025-04-22 15:41:40 - Authentication state changed: User logged out
+2025-04-22 15:54:37 - Application starting...
+2025-04-22 15:54:38 - Application UI initialized and displayed
+2025-04-22 15:54:55 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-22 15:54:55 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-22 15:54:56 - Authentication state changed: User logged in
+2025-04-22 15:54:58 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-22 15:54:58 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 236
+2025-04-22 15:54:58 - Function get_user_list: SUCCESS - users_count: 236
+2025-04-22 15:54:58 - Function email_sanitizer: SUCCESS - users_count: 236

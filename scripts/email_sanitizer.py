@@ -1480,10 +1480,16 @@ class EmailSanitizerPage(QWidget):
 
 def sanitize_emails():
     """Sanitizes user emails by checking domains and updating as needed"""
+    from ui.utils import log_function_execution
+    
     # Read the user list from temp file
     temp_path = Path(__file__).parent.parent / 'temp_users.json'
     if not temp_path.exists():
-        QMessageBox.critical(None, "Error", "No user list found. Make sure you're logged in and have proper permissions.")
+        error_msg = "No user list found. Make sure you're logged in and have proper permissions."
+        log_function_execution("email_sanitizer", "FAILED", {
+            "error": error_msg
+        })
+        QMessageBox.critical(None, "Error", error_msg)
         return None
 
     try:
@@ -1491,16 +1497,34 @@ def sanitize_emails():
             users = json.load(f)
             
         if not users:
-            QMessageBox.warning(None, "Warning", "No users found in the system")
+            error_msg = "No users found in the system"
+            log_function_execution("email_sanitizer", "FAILED", {
+                "error": error_msg,
+                "users_count": 0
+            })
+            QMessageBox.warning(None, "Warning", error_msg)
             return None
         
+        # Log successful execution
+        log_function_execution("email_sanitizer", "SUCCESS", {
+            "users_count": len(users)
+        })
         return users
             
     except json.JSONDecodeError:
-        QMessageBox.critical(None, "Error", "Invalid JSON data in user list")
+        error_msg = "Invalid JSON data in user list"
+        log_function_execution("email_sanitizer", "FAILED", {
+            "error": error_msg,
+            "file_path": str(temp_path)
+        })
+        QMessageBox.critical(None, "Error", error_msg)
         return None
     except Exception as e:
-        QMessageBox.critical(None, "Error", f"Error processing users: {str(e)}")
+        error_msg = f"Error processing users: {str(e)}"
+        log_function_execution("email_sanitizer", "FAILED", {
+            "error": error_msg
+        })
+        QMessageBox.critical(None, "Error", error_msg)
         return None
         
 if __name__ == '__main__':

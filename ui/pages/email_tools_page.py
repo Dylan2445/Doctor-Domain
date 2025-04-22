@@ -5,6 +5,7 @@ from scripts.user_retriever import UserRetriever
 from pathlib import Path
 import json
 from ..state import AuthState
+from ..utils import create_styled_message_box
 
 class EmailToolsPage(QWidget):
     def __init__(self):
@@ -99,18 +100,36 @@ class EmailToolsPage(QWidget):
         # Check if user is logged in
         auth_state = AuthState.instance()
         if not auth_state.is_logged_in:
-            QMessageBox.warning(self, "Not Logged In", "Please log in first to use this tool.")
+            msg_box = create_styled_message_box(
+                self,
+                title="Not Logged In",
+                text="Please log in first to use this tool.",
+                icon=QMessageBox.Icon.Warning
+            )
+            msg_box.exec()
             return
             
         if not auth_state.access_token:
-            QMessageBox.warning(self, "Authentication Error", "No access token found. Please log in again.")
+            msg_box = create_styled_message_box(
+                self,
+                title="Authentication Error",
+                text="No access token found. Please log in again.",
+                icon=QMessageBox.Icon.Warning
+            )
+            msg_box.exec()
             return
         
         try:
             # Load settings to get server, library ID and customer ID
             config_path = Path(__file__).parent.parent.parent / 'config' / 'login_settings.json'
             if not config_path.exists():
-                QMessageBox.critical(self, "Configuration Error", "Login settings not found. Please configure your account first.")
+                msg_box = create_styled_message_box(
+                    self,
+                    title="Configuration Error",
+                    text="Login settings not found. Please configure your account first.",
+                    icon=QMessageBox.Icon.Critical
+                )
+                msg_box.exec()
                 return
                 
             with open(config_path) as f:
@@ -121,7 +140,13 @@ class EmailToolsPage(QWidget):
             customer_id = settings.get('Customer ID')
             
             if not all([server, library_id, customer_id]):
-                QMessageBox.critical(self, "Configuration Error", "Missing server, customer ID or library ID in settings.")
+                msg_box = create_styled_message_box(
+                    self,
+                    title="Configuration Error",
+                    text="Missing server, customer ID or library ID in settings.",
+                    icon=QMessageBox.Icon.Critical
+                )
+                msg_box.exec()
                 return
             
             # Fetch user list
@@ -149,10 +174,22 @@ Customer ID: {customer_id}
 Library ID: {library_id}
 Request URL: https://{server}/work/api/v2/customers/{customer_id}/libraries/{library_id}/users
 """
-                QMessageBox.critical(self, "Error Retrieving Users", error_details)
+                msg_box = create_styled_message_box(
+                    self,
+                    title="Error Retrieving Users",
+                    text=error_details,
+                    icon=QMessageBox.Icon.Critical
+                )
+                msg_box.exec()
                 
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to run email sanitizer: {str(e)}")
+            msg_box = create_styled_message_box(
+                self,
+                title="Error",
+                text=f"Failed to run email sanitizer: {str(e)}",
+                icon=QMessageBox.Icon.Critical
+            )
+            msg_box.exec()
     
     def show_tools(self):
         """Show the tools page"""
