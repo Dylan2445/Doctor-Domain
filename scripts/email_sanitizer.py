@@ -1102,19 +1102,22 @@ class EmailSanitizerPage(QWidget):
         return widget
     
     def create_results_widget(self):
-        """Create the results display widget"""
+        """Create the results display widget with an improved modern UI that fills the screen"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
         
-        # Results frame
+        # Create a modern card-like container that expands to fill available space
         results_frame = QFrame()
-        results_frame.setFixedWidth(580)
+        results_frame.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        results_frame.setMinimumWidth(800)  # Wider minimum width
+        results_frame.setObjectName("resultsFrame")
         results_frame.setStyleSheet("""
-            QFrame {
+            #resultsFrame {
                 background-color: white;
                 border: 1px solid #E2E8F0;
-                border-radius: 10px;
+                border-radius: 8px;
             }
         """)
         
@@ -1122,69 +1125,136 @@ class EmailSanitizerPage(QWidget):
         results_layout.setContentsMargins(0, 0, 0, 0)
         results_layout.setSpacing(0)
         
-        # Header
+        # Modern header with title and count
         header = QWidget()
-        header_layout = QVBoxLayout(header)
-        header_layout.setContentsMargins(24, 20, 24, 20)
+        header.setObjectName("resultsHeader")
+        header.setStyleSheet("""
+            #resultsHeader {
+                background-color: #F8FAFC;
+                border-bottom: 1px solid #E2E8F0;
+            }
+        """)
+        header_layout = QHBoxLayout(header)
+        header_layout.setContentsMargins(24, 16, 24, 16)
         
-        results_title = QLabel("Sanitization Results")
-        results_title.setStyleSheet("font-size: 16px; font-weight: 600; color: #0F172A;")
+        # Left side of header - title and count
+        header_info = QWidget()
+        header_info_layout = QVBoxLayout(header_info)
+        header_info_layout.setContentsMargins(0, 0, 0, 0)
+        header_info_layout.setSpacing(4)
+        
+        title = QLabel("Sanitization Results")
+        title.setStyleSheet("font-size: 20px; font-weight: 600; color: #0F172A;")
         
         self.results_count = QLabel()
-        self.results_count.setStyleSheet("font-size: 13px; color: #64748B; margin-top: 4px;")
+        self.results_count.setStyleSheet("font-size: 14px; color: #64748B;")
         
-        header_layout.addWidget(results_title)
-        header_layout.addWidget(self.results_count)
+        header_info_layout.addWidget(title)
+        header_info_layout.addWidget(self.results_count)
         
-        # Table
+        # Right side of header - could contain actions or filters
+        header_actions = QWidget()
+        header_actions_layout = QHBoxLayout(header_actions)
+        header_actions_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Add header components
+        header_layout.addWidget(header_info, 1)  # 1 = stretch factor
+        header_layout.addWidget(header_actions)
+        
+        # Table container that fills available space
         table_container = QWidget()
+        table_container.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         table_layout = QVBoxLayout(table_container)
-        table_layout.setContentsMargins(20, 0, 20, 20)
+        table_layout.setContentsMargins(24, 20, 24, 20)
         
+        # Modern styled table
         self.results_table = QTableWidget()
+        self.results_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.results_table.setMinimumHeight(400)  # Taller minimum height
+        self.results_table.setObjectName("resultsTable")
         self.results_table.setColumnCount(5)
-        self.results_table.setHorizontalHeaderLabels(["UserID", "Full Name", "Email", "Classification", "New Email"])
-        self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        self.results_table.setHorizontalHeaderLabels(["User ID", "Full Name", "Email", "Classification", "New Email"])
+        
+        # Configure the table appearance
+        self.results_table.setShowGrid(False)  # No grid lines for a cleaner look
+        self.results_table.setAlternatingRowColors(True)
+        self.results_table.verticalHeader().setVisible(False)  # Hide row numbers
+        self.results_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.results_table.horizontalHeader().setMinimumHeight(40)  # Taller header
+        
+        # Apply modern styling consistent with other tables
         self.results_table.setStyleSheet("""
             QTableWidget {
-                border: 1px solid #E2E8F0;
-                border-radius: 4px;
-                gridline-color: #F1F5F9;
-                color: #1E293B;
+                border: none;
+                background-color: white;
+                alternate-background-color: #F8FAFC;
+                selection-background-color: #EFF6FF;
+                selection-color: #1E293B;
             }
             QTableWidget::item {
-                padding: 6px;
+                padding: 12px 8px;
+                border-bottom: 1px solid #F1F5F9;
+            }
+            QTableWidget::item:selected {
+                background-color: #EFF6FF;
                 color: #1E293B;
             }
             QHeaderView::section {
-                background-color: #F8FAFC;
-                border: 1px solid #E2E8F0;
-                padding: 6px;
-                font-weight: bold;
-                color: #1E293B;
+                background-color: white;
+                padding: 12px 8px;
+                border: none;
+                border-bottom: 2px solid #E2E8F0;
+                font-weight: 600;
+                color: #475569;
+                font-size: 14px;
+                text-align: left;
+            }
+            QScrollBar:vertical {
+                background: #F1F5F9;
+                width: 8px;
+                margin: 0;
+            }
+            QScrollBar::handle:vertical {
+                background: #CBD5E1;
+                min-height: 30px;
+                border-radius: 4px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
             }
         """)
         
+        # Make the table non-editable
+        self.results_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        
         table_layout.addWidget(self.results_table)
         
-        # Action panel
-        action_panel = QWidget()
-        action_panel.setStyleSheet("""
-            background: #F8FAFC;
-            border-top: 1px solid #E2E8F0;
+        # Footer with actions
+        footer = QWidget()
+        footer.setObjectName("resultsFooter")
+        footer.setStyleSheet("""
+            #resultsFooter {
+                background-color: #F8FAFC;
+                border-top: 1px solid #E2E8F0;
+            }
         """)
+        footer_layout = QHBoxLayout(footer)
+        footer_layout.setContentsMargins(24, 16, 24, 16)
         
-        action_layout = QHBoxLayout(action_panel)
-        action_layout.setContentsMargins(24, 20, 24, 20)
+        # Add explanation text
+        explanation = QLabel("Only disabled users are shown in this report")
+        explanation.setStyleSheet("color: #64748B; font-style: italic;")
         
+        # Back button with modern styling
         back_to_options_btn = QPushButton("Back to Options")
-        back_to_options_btn.setFixedSize(140, 38)
         back_to_options_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         back_to_options_btn.setStyleSheet("""
             QPushButton {
                 color: #475569;
                 border: 1.5px solid #CBD5E1;
                 border-radius: 6px;
+                padding: 10px 16px;
                 font-weight: 500;
                 font-size: 14px;
             }
@@ -1194,16 +1264,17 @@ class EmailSanitizerPage(QWidget):
         """)
         back_to_options_btn.clicked.connect(lambda: self.stack.setCurrentWidget(self.sanitizer_panel))
         
-        action_layout.addWidget(back_to_options_btn)
-        action_layout.addStretch()
+        footer_layout.addWidget(explanation)
+        footer_layout.addStretch()
+        footer_layout.addWidget(back_to_options_btn)
         
-        # Add all components
+        # Build the main layout
         results_layout.addWidget(header)
-        results_layout.addWidget(table_container)
-        results_layout.addWidget(action_panel)
+        results_layout.addWidget(table_container, 1)  # 1 = stretch factor to take available space
+        results_layout.addWidget(footer)
         
-        layout.addWidget(results_frame, alignment=Qt.AlignmentFlag.AlignHCenter)
-        layout.addStretch()
+        # Add the container to the parent layout - take full available space
+        layout.addWidget(results_frame)
         
         return widget
 
@@ -1450,28 +1521,63 @@ class EmailSanitizerPage(QWidget):
     
     def display_results(self, results):
         """Display results in the results table"""
+        # Clear the table first
+        self.results_table.setRowCount(0)
+        
+        # Set row count and apply consistent row height
         self.results_table.setRowCount(len(results))
+        row_height = 40  # Fixed row height for better appearance
+        
+        # Debug output to console to trace data
+        print(f"Displaying {len(results)} results")
+        
         for row, result in enumerate(results):
-            # Set table items
-            self.results_table.setItem(row, 0, QTableWidgetItem(result["UserID"]))
-            self.results_table.setItem(row, 1, QTableWidgetItem(result["FullName"]))
-            self.results_table.setItem(row, 2, QTableWidgetItem(result["Email"]))
+            # Debug the current row data
+            print(f"Row {row}: {result}")
+            
+            # Create table items with proper data and styling
+            user_id_item = QTableWidgetItem(str(result.get("UserID", "")))
+            full_name_item = QTableWidgetItem(str(result.get("FullName", "")))
+            email_item = QTableWidgetItem(str(result.get("Email", "")))
+            
+            # Set text color for better visibility
+            user_id_item.setForeground(QColor("#1E293B"))
+            full_name_item.setForeground(QColor("#1E293B"))
+            email_item.setForeground(QColor("#1E293B"))
             
             # Classification column
-            classification_item = QTableWidgetItem(result["Classification"])
-            if result["Classification"] == "External":
+            classification = result.get("Classification", "")
+            classification_item = QTableWidgetItem(classification)
+            if classification == "External":
                 classification_item.setForeground(QColor("#D97706"))  # Amber for external
             else:
                 classification_item.setForeground(QColor("#059669"))  # Green for internal
             
-            self.results_table.setItem(row, 3, classification_item)
-            
             # New email column
-            email_item = QTableWidgetItem(result["NewEmail"])
-            if result["NewEmail"]:
-                email_item.setForeground(QColor("#059669"))  # Green for new email
+            new_email = result.get("NewEmail", "")
+            new_email_item = QTableWidgetItem(new_email)
+            if new_email:
+                new_email_item.setForeground(QColor("#059669"))  # Green for new email
             
-            self.results_table.setItem(row, 4, email_item)
+            # Set items in the table - make sure column indices match
+            self.results_table.setItem(row, 0, user_id_item)
+            self.results_table.setItem(row, 1, full_name_item)
+            self.results_table.setItem(row, 2, email_item)
+            self.results_table.setItem(row, 3, classification_item)
+            self.results_table.setItem(row, 4, new_email_item)
+            
+            # Set consistent row height
+            self.results_table.setRowHeight(row, row_height)
+        
+        # Ensure columns fit content properly
+        self.results_table.resizeColumnsToContents()
+        
+        # Then apply stretch mode for better appearance
+        total_width = self.results_table.viewport().width()
+        column_widths = [0.15, 0.25, 0.25, 0.15, 0.20]  # Proportional width percentages
+        
+        for col, width_factor in enumerate(column_widths):
+            self.results_table.setColumnWidth(col, int(total_width * width_factor))
         
         # Update UI
         self.results_count.setText(f"Found {len(results)} users that need email sanitization")

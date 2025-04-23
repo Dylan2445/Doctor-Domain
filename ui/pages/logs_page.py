@@ -114,32 +114,10 @@ class LogsPage(QWidget):
         """)
         self.auto_refresh_btn.toggled.connect(self.toggle_auto_refresh)
         
-        # Log overlay toggle button
-        self.overlay_toggle_btn = QPushButton("Show Overlay")
-        self.overlay_toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.overlay_toggle_btn.setCheckable(True)
-        self.overlay_toggle_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #EFF6FF;
-                color: #3B82F6;
-                border: none;
-                border-radius: 4px;
-                padding: 4px 10px;
-                font-size: 12px;
-                font-weight: 500;
-                margin-left: 6px;
-            }
-            QPushButton:checked {
-                background-color: #DBEAFE;
-                color: #2563EB;
-            }
-        """)
-        
         header_layout.addWidget(header)
         header_layout.addWidget(self.status_label, alignment=Qt.AlignmentFlag.AlignVCenter)
         header_layout.addStretch()
         header_layout.addWidget(self.auto_refresh_btn)
-        header_layout.addWidget(self.overlay_toggle_btn)
         
         main_layout.addWidget(header_container)
         
@@ -338,20 +316,19 @@ class LogsPage(QWidget):
     def refresh_log(self):
         """Refresh the log display"""
         was_updated = self.consolidate_logs()
-        self.is_first_load = False
         
         if self.log_file.exists():
             try:
                 # Remember scroll position
                 scroll_bar = self.log_content.verticalScrollBar()
-                was_at_bottom = scroll_bar.value() == scroll_bar.maximum()
+                current_scroll_position = scroll_bar.value()
                 
                 with open(self.log_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                 
                 # Only update UI if content is actually different to avoid flicker
                 if was_updated or self.log_content.toPlainText() != content:
-                    # Format log content with colored timestamps and without source
+                    # Format log content with colored timestamps and sources
                     formatted_content = ""
                     for line in content.splitlines():
                         # Skip empty lines
@@ -361,25 +338,36 @@ class LogsPage(QWidget):
                         # Check if line contains a timestamp pattern (YYYY-MM-DD HH:MM:SS)
                         if line[:19].count('-') == 2 and line[:19].count(':') == 2:
                             timestamp = line[:19]
-                            message = line[20:].strip()  # Skip the hyphen and space after timestamp
                             
-                            # Remove source marker if present (completely remove, no conditional check)
-                            source_start = message.find('[Source:')
+                            # Extract source if present
+                            source_start = line.rfind('[Source:')
                             if source_start > -1:
-                                message = message[:source_start].strip()
-                                
-                            formatted_content += (
-                                f"<span style='color:#3B82F6;'>{timestamp}</span> - "
-                                f"<span style='color:#1E293B;'>{message}</span><br>"
-                            )
+                                message = line[19:source_start].strip()
+                                source = line[source_start:]
+                                formatted_content += (
+                                    f"<span style='color:#3B82F6;'>{timestamp}</span> - "
+                                    f"<span style='color:#1E293B;'>{message}</span> "
+                                    f"<span style='color:#64748B; font-style:italic; font-size:11px;'>{source}</span><br>"
+                                )
+                            else:
+                                message = line[19:]
+                                formatted_content += (
+                                    f"<span style='color:#3B82F6;'>{timestamp}</span> - "
+                                    f"<span style='color:#1E293B;'>{message}</span><br>"
+                                )
                         else:
                             formatted_content += f"<span style='color:#1E293B;'>{line}</span><br>"
                     
+                    # Set content to text edit
                     self.log_content.setHtml(formatted_content)
                     
-                    # Restore scroll to bottom if it was at bottom
-                    if was_at_bottom:
-                        scroll_bar.setValue(scroll_bar.maximum())
+                    # Use a more robust method to scroll to bottom on first load
+                    if self.is_first_load:
+                        # Schedule scrolling after rendering is complete
+                        QTimer.singleShot(0, self.scroll_to_bottom)
+                    else:
+                        # Restore previous scroll position
+                        scroll_bar.setValue(current_scroll_position)
                         
                     self.status_label.setText(f"Logs refreshed at {datetime.datetime.now().strftime('%H:%M:%S')}")
             except Exception as e:
@@ -388,6 +376,28 @@ class LogsPage(QWidget):
         else:
             self.log_content.setHtml("<span style='color:#64748B; font-style:italic;'>No logs available yet.</span>")
             self.status_label.setText("No Logs Available")
+        
+        # Set first load flag to False after processing
+        self.is_first_load = False
+    
+    def scroll_to_bottom(self):
+        """Scroll to the bottom of the log content - more reliable method"""
+        # Get scroll bar
+        scroll_bar = self.log_content.verticalScrollBar()
+        
+        # Move cursor to end - helps ensure all content is loaded
+        cursor = self.log_content.textCursor()
+        cursor.movePosition(cursor.MoveOperation.End)
+        self.log_content.setTextCursor(cursor)
+        
+        # Force layout update
+        self.log_content.document().adjustSize()
+        
+        # Set scroll to maximum value
+        scroll_bar.setValue(scroll_bar.maximum())
+        
+        # Schedule another scroll after 200ms to ensure it happens after any layout adjustments
+        QTimer.singleShot(200, lambda: scroll_bar.setValue(scroll_bar.maximum()))
     
     def toggle_auto_refresh(self, checked):
         """Toggle auto-refresh functionality"""
