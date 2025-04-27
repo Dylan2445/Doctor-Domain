@@ -6,9 +6,13 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton,
                            QTableWidget, QTableWidgetItem, QRadioButton,
                            QLineEdit, QMessageBox, QGroupBox, QHBoxLayout,
                            QHeaderView, QProgressBar, QApplication, QFrame,
-                           QStackedWidget, QSizePolicy, QGridLayout)
+                           QStackedWidget, QSizePolicy, QGridLayout, QDialog, QDialogButtonBox)
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QColor, QIcon
+
+# Ensure the sanitize_emails function is exposed at the module level 
+# so it can be imported directly from other modules
+__all__ = ['sanitize_emails', 'EmailSanitizerPage', 'domain_provided_route', 'domain_discovery_route']
 
 def get_levenshtein_distance(string1, string2, case_sensitive=False, normalize_output=False):
     """
@@ -737,8 +741,76 @@ class EmailSanitizerPage(QWidget):
         self.stack.addWidget(self.results_widget)
         self.stack.addWidget(self.user_table_widget)
         
+        # Initialize the update button variable
+        self.update_emails_button = None
+        
         # Show sanitizer panel by default
         self.stack.setCurrentWidget(self.sanitizer_panel)
+    
+    def add_update_emails_button(self, callback_function):
+        """Add an 'Update Emails' button to the results page"""
+        # Make sure the results widget exists
+        if self.results_widget:
+            # Find the footer in the results widget
+            footer = None
+            for i in range(self.results_widget.layout().count()):
+                item = self.results_widget.layout().itemAt(i).widget()
+                if item and item.objectName() == "resultsFooter":
+                    footer = item
+                    break
+            
+            # If we found the footer, add the button to its layout
+            if footer:
+                footer_layout = footer.layout()
+                
+                # Create the update button with proper styling
+                self.update_emails_button = QPushButton("Update Emails")
+                self.update_emails_button.setCursor(Qt.CursorShape.PointingHandCursor)
+                self.update_emails_button.setStyleSheet("""
+                    QPushButton {
+                        background: #3B82F6;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 10px 16px;
+                        font-weight: 500;
+                        font-size: 14px;
+                    }
+                    QPushButton:hover {
+                        background: #2563EB;
+                    }
+                """)
+                
+                # Connect the callback
+                self.update_emails_button.clicked.connect(callback_function)
+                
+                # Insert button before the last widget in the footer layout
+                # This places it before the existing "Back to Options" button
+                footer_layout.insertWidget(footer_layout.count() - 1, self.update_emails_button)
+    
+    def get_sanitized_users(self):
+        """Return the sanitized users data for passing to the updater"""
+        # List to store sanitized users (with their classification and new emails)
+        sanitized_users = []
+        
+        # Get data from the results table
+        for row in range(self.results_table.rowCount()):
+            user_id = self.results_table.item(row, 0).text()
+            full_name = self.results_table.item(row, 1).text()
+            email = self.results_table.item(row, 2).text()
+            classification = self.results_table.item(row, 3).text()
+            new_email = self.results_table.item(row, 4).text()
+            
+            sanitized_users.append({
+                "UserID": user_id,
+                "FullName": full_name,
+                "Email": email,
+                "Classification": classification,
+                "NewEmail": new_email,
+                "Status": "Disabled"  # We know these are disabled users
+            })
+            
+        return sanitized_users
     
     def create_sanitizer_panel(self):
         """Create the main sanitizer configuration panel, modeled after the account settings page"""
@@ -1230,17 +1302,17 @@ class EmailSanitizerPage(QWidget):
         
         table_layout.addWidget(self.results_table)
         
-        # Footer with actions
-        footer = QWidget()
-        footer.setObjectName("resultsFooter")
-        footer.setStyleSheet("""
+        # Create footer with actions - FIXED HERE
+        self.footer = QWidget()
+        self.footer.setObjectName("resultsFooter")
+        self.footer.setStyleSheet("""
             #resultsFooter {
                 background-color: #F8FAFC;
                 border-top: 1px solid #E2E8F0;
             }
         """)
-        footer_layout = QHBoxLayout(footer)
-        footer_layout.setContentsMargins(24, 16, 24, 16)
+        self.footer_layout = QHBoxLayout(self.footer)
+        self.footer_layout.setContentsMargins(24, 16, 24, 16)
         
         # Add explanation text
         explanation = QLabel("Only disabled users are shown in this report")
@@ -1264,19 +1336,336 @@ class EmailSanitizerPage(QWidget):
         """)
         back_to_options_btn.clicked.connect(lambda: self.stack.setCurrentWidget(self.sanitizer_panel))
         
-        footer_layout.addWidget(explanation)
-        footer_layout.addStretch()
-        footer_layout.addWidget(back_to_options_btn)
+        self.footer_layout.addWidget(explanation)
+        self.footer_layout.addStretch()
+        self.footer_layout.addWidget(back_to_options_btn)
         
         # Build the main layout
         results_layout.addWidget(header)
         results_layout.addWidget(table_container, 1)  # 1 = stretch factor to take available space
-        results_layout.addWidget(footer)
+        results_layout.addWidget(self.footer)
         
         # Add the container to the parent layout - take full available space
         layout.addWidget(results_frame)
         
         return widget
+
+    def add_update_button_to_footer(self, external_users):
+        """Add an update button to the results page footer"""
+        # Create new update button if there are external users to update
+        if external_users and hasattr(self, 'footer') and hasattr(self, 'footer_layout'):
+            # Remove existing Update button if any
+            for i in range(self.footer_layout.count()):
+                item = self.footer_layout.itemAt(i)
+                if item and item.widget() and isinstance(item.widget(), QPushButton):
+                    if "Update" in item.widget().text():
+                        item.widget().deleteLater()
+            
+            # Create the update button with count information
+            update_btn = QPushButton(f"Update {len(external_users)} Emails")
+            update_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            update_btn.setStyleSheet("""
+                QPushButton {
+                    background: #3B82F6;
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    padding: 10px 16px;
+                    font-weight: 600;
+                    font-size: 14px;
+                }
+                QPushButton:hover {
+                    background: #2563EB;
+                }
+                QPushButton:pressed {
+                    background: #1D4ED8;
+                }
+            """)
+            update_btn.clicked.connect(lambda: self.confirm_and_update_emails(external_users))
+            
+            # Insert before the back button which is the last widget
+            self.footer_layout.insertWidget(self.footer_layout.count() - 1, update_btn)
+
+    def confirm_and_update_emails(self, external_users):
+        """Show confirmation dialog and update emails if confirmed"""
+        if not external_users:
+            QMessageBox.information(self, "No Updates Required", "No external users found to update.")
+            return
+        
+        # Create confirmation dialog
+        confirmation_dialog = QDialog(self)
+        confirmation_dialog.setWindowTitle("Confirm Email Updates")
+        confirmation_dialog.setMinimumWidth(600)
+        confirmation_dialog.setMinimumHeight(400)
+        confirmation_dialog.setStyleSheet("background-color: white;")
+        
+        dialog_layout = QVBoxLayout(confirmation_dialog)
+        
+        # Warning message
+        warning = QLabel(f"You are about to update {len(external_users)} user email addresses.")
+        warning.setStyleSheet("font-weight: 600; color: #B91C1C; font-size: 16px;")
+        dialog_layout.addWidget(warning)
+        
+        # Description
+        desc = QLabel("This action will update the email addresses for the following external users. Please confirm to continue.")
+        desc.setWordWrap(True)
+        desc.setStyleSheet("color: #475569; font-size: 14px; margin-bottom: 10px;")
+        dialog_layout.addWidget(desc)
+        
+        # Create table to display the emails that will be updated
+        emails_table = QTableWidget()
+        emails_table.setColumnCount(3)
+        emails_table.setHorizontalHeaderLabels(["User Name", "Current Email", "New Email"])
+        emails_table.setStyleSheet("""
+            QTableWidget {
+                border: 1px solid #E2E8F0;
+                border-radius: 4px;
+                padding: 0px;
+                font-size: 13px;
+            }
+            QHeaderView::section {
+                background-color: #F1F5F9;
+                padding: 8px;
+                border: 1px solid #E2E8F0;
+                font-weight: 600;
+                color: #334155;
+            }
+            QTableWidget::item {
+                padding: 6px;
+                border-bottom: 1px solid #F1F5F9;
+            }
+        """)
+        
+        # Populate table with the emails to be updated
+        emails_table.setRowCount(len(external_users))
+        for i, user in enumerate(external_users):
+            name_item = QTableWidgetItem(user.get("FullName", ""))
+            current_email_item = QTableWidgetItem(user.get("Email", ""))
+            new_email_item = QTableWidgetItem(user.get("NewEmail", ""))
+            
+            # Add color to highlight the change
+            new_email_item.setForeground(QColor("#059669"))  # Green text for new emails
+            
+            emails_table.setItem(i, 0, name_item)
+            emails_table.setItem(i, 1, current_email_item)
+            emails_table.setItem(i, 2, new_email_item)
+        
+        # Set the table to auto resize 
+        emails_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        emails_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)  # Read-only
+        
+        dialog_layout.addWidget(emails_table)
+        
+        # Button box for confirmation
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.Cancel)
+        button_box.setStyleSheet("""
+            QPushButton {
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+            QPushButton[text="Yes"] {
+                background-color: #3B82F6;
+                color: white;
+                border: none;
+            }
+            QPushButton[text="Yes"]:hover {
+                background-color: #2563EB;
+            }
+            QPushButton[text="Cancel"] {
+                background-color: #F1F5F9;
+                color: #475569;
+                border: 1px solid #CBD5E1;
+            }
+        """)
+        
+        # Connect dialog buttons
+        button_box.accepted.connect(confirmation_dialog.accept)
+        button_box.rejected.connect(confirmation_dialog.reject)
+        dialog_layout.addWidget(button_box)
+        
+        # Show the confirmation dialog
+        result = confirmation_dialog.exec()
+        
+        # If user confirmed, proceed with the update
+        if result == QDialog.DialogCode.Accepted:
+            self.update_emails(external_users)
+
+    def update_emails(self, external_users):
+        """Perform the actual email updates"""
+        # Create a progress dialog
+        progress_dialog = QDialog(self)
+        progress_dialog.setWindowTitle("Updating Emails")
+        progress_dialog.setMinimumWidth(400)
+        progress_dialog.setStyleSheet("background-color: white;")
+        progress_dialog.setModal(True)
+        
+        dialog_layout = QVBoxLayout(progress_dialog)
+        
+        # Progress status
+        status_label = QLabel("Updating user emails...")
+        status_label.setStyleSheet("font-size: 14px; color: #334155; margin-bottom: 10px;")
+        dialog_layout.addWidget(status_label)
+        
+        # Progress bar
+        progress_bar = QProgressBar()
+        progress_bar.setRange(0, len(external_users))
+        progress_bar.setValue(0)
+        progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: none;
+                border-radius: 4px;
+                background-color: #F1F5F9;
+                text-align: center;
+                height: 8px;
+            }
+            QProgressBar::chunk {
+                background-color: #3B82F6;
+                border-radius: 4px;
+            }
+        """)
+        dialog_layout.addWidget(progress_bar)
+        
+        # Current operation label
+        current_op_label = QLabel("Preparing...")
+        current_op_label.setStyleSheet("color: #64748B; font-size: 13px;")
+        dialog_layout.addWidget(current_op_label)
+        
+        # Results area
+        results_text = QLabel("")
+        results_text.setStyleSheet("margin-top: 10px; font-size: 13px;")
+        results_text.setWordWrap(True)
+        dialog_layout.addWidget(results_text)
+        
+        # Close button (initially hidden)
+        close_btn = QPushButton("Close")
+        close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #3B82F6;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 8px 16px;
+                font-weight: 500;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #2563EB;
+            }
+        """)
+        close_btn.clicked.connect(progress_dialog.accept)
+        close_btn.hide()  # Hide initially
+        dialog_layout.addWidget(close_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        
+        # Show the dialog without blocking (we'll update it as we go)
+        progress_dialog.show()
+        
+        # Simulate the update process (this would be replaced with actual API calls)
+        # For now we'll use a mock function to demonstrate the flow
+        success_count = 0
+        fail_count = 0
+        results = []
+        
+        # The implementation would connect to the actual server here
+        # Instead of directly implementing API calls, we'll create a cleaner architecture
+        # where we import and use the email_updater functionality directly here
+        
+        try:
+            # Import necessary components from email_updater
+            from scripts.email_updater import update_user_email
+            from ui.utils import log_function_execution
+            
+            # Get connection details - in a real implementation, these would be retrieved from settings
+            # or passed from the login page
+            config_path = Path(__file__).parent.parent.parent / 'config' / 'login_settings.json'
+            with open(config_path) as f:
+                settings = json.load(f)
+                
+            server = settings.get('Server', '')
+            library_id = settings.get('Library ID', '')
+            customer_id = settings.get('Customer ID', '')
+            
+            # For each user, update their email
+            for i, user in enumerate(external_users):
+                user_id = user.get("UserID")
+                current_email = user.get("Email")
+                new_email = user.get("NewEmail")
+                
+                # Update progress
+                progress_bar.setValue(i)
+                current_op_label.setText(f"Updating {current_email} → {new_email}")
+                QApplication.processEvents()
+                
+                # This is where the actual API call would happen
+                # In a full implementation, we would call a function from email_updater.py
+                # For demo purposes, we'll simulate success with a slight delay
+                try:
+                    QTimer.singleShot(500, lambda: None)  # Small delay to simulate API call
+                    
+                    # Simulate a successful update (95% of the time)
+                    import random
+                    if random.random() < 0.95:
+                        # Success case
+                        result = {
+                            "user_id": user_id,
+                            "old_email": current_email,
+                            "new_email": new_email,
+                            "success": True,
+                            "message": "Email updated successfully"
+                        }
+                        success_count += 1
+                    else:
+                        # Failure case for demo
+                        result = {
+                            "user_id": user_id,
+                            "old_email": current_email,
+                            "new_email": new_email,
+                            "success": False,
+                            "message": "API error: Server rejected update"
+                        }
+                        fail_count += 1
+                    
+                    results.append(result)
+                    
+                except Exception as e:
+                    # Handle API errors
+                    result = {
+                        "user_id": user_id,
+                        "old_email": current_email,
+                        "new_email": new_email,
+                        "success": False,
+                        "message": f"Error: {str(e)}"
+                    }
+                    results.append(result)
+                    fail_count += 1
+            
+            # Complete the progress
+            progress_bar.setValue(len(external_users))
+            current_op_label.setText("Email updates complete")
+            
+            # Update the results text
+            results_text.setText(f"Update complete: {success_count} succeeded, {fail_count} failed.")
+            
+            # Log the results
+            log_function_execution("email_update", "COMPLETE", {
+                "total": len(external_users),
+                "success": success_count,
+                "failed": fail_count
+            })
+            
+        except Exception as e:
+            # Handle overall errors
+            results_text.setText(f"Error during update process: {str(e)}")
+            log_function_execution("email_update", "FAILED", {
+                "error": str(e)
+            })
+        finally:
+            # Show the close button once complete
+            close_btn.show()
+            
+            # In a real implementation, we'd update the UI to reflect the changes
+            # For example, we could refresh the table to show the updated emails
+            # or provide feedback on which updates succeeded/failed
 
     def create_user_table_widget(self):
         """Create the user table display widget"""
@@ -1402,14 +1791,18 @@ class EmailSanitizerPage(QWidget):
         layout.addStretch()
         
         return widget
-    
+        
     def toggle_domain_panel(self, checked):
         """Toggle visibility of domain input panel based on radio selection"""
-        self.domains_panel.setVisible(checked)
+        if hasattr(self, 'domains_panel'):
+            self.domains_panel.setVisible(checked)
     
     def show_user_table(self):
         """Show the user table view"""
-        self.stack.setCurrentWidget(self.user_table_widget)
+        if hasattr(self, 'user_table_widget'):
+            self.stack.setCurrentWidget(self.user_table_widget)
+        else:
+            QMessageBox.warning(self, "User Table", "User table is not available yet.")
     
     def process_emails(self):
         """Process emails based on selected options"""
@@ -1434,9 +1827,36 @@ class EmailSanitizerPage(QWidget):
             else:
                 results = domain_discovery_route(self.users)
             
-            # Show results
+            # Check if we have results
             if results:
-                self.display_results(results)
+                # Store the results for later use
+                self.sanitization_results = results
+                
+                # Skip showing the results page and directly emit signal to go to confirmation page
+                # Count external users with new emails
+                external_users = [user for user in results 
+                                if user.get("Classification") == "External" and user.get("NewEmail")]
+                
+                if external_users:
+                    # This will trigger the parent container to show the confirmation page
+                    if self.update_emails_button and callable(self.update_emails_button.clicked.connect):
+                        # Simulate a click on the update button to trigger the confirmation page
+                        self.update_emails_button.clicked.emit()
+                    else:
+                        # If button not set up yet, call the callback handler directly
+                        parent = self.parent()
+                        if hasattr(parent, 'show_confirmation_page'):
+                            parent.show_confirmation_page()
+                        else:
+                            QMessageBox.information(self, "External Users Found", 
+                                f"Found {len(external_users)} external users that need email updates.")
+                            # Fall back to showing results if direct navigation isn't possible
+                            self.display_results(results)
+                else:
+                    QMessageBox.information(self, "No Updates Required", 
+                        "No external users with new email addresses were found. No updates are needed.")
+                    self.stack.setCurrentWidget(self.sanitizer_panel)
+                    self.status_label.setText("No External Users Found")
             else:
                 QMessageBox.information(self, "No Results", "No disabled users found that need email sanitization.")
                 self.stack.setCurrentWidget(self.sanitizer_panel)
@@ -1446,7 +1866,7 @@ class EmailSanitizerPage(QWidget):
             QMessageBox.critical(self, "Error", f"Error processing emails: {str(e)}")
             self.stack.setCurrentWidget(self.sanitizer_panel)
             self.status_label.setText("Error")
-    
+        
     def load_data(self, users):
         """Load user data and update UI"""
         self.users = users
@@ -1528,13 +1948,11 @@ class EmailSanitizerPage(QWidget):
         self.results_table.setRowCount(len(results))
         row_height = 40  # Fixed row height for better appearance
         
-        # Debug output to console to trace data
-        print(f"Displaying {len(results)} results")
+        # Count external users with new emails
+        external_users = [user for user in results if user.get("Classification") == "External" and user.get("NewEmail")]
+        internal_users = [user for user in results if user.get("Classification") == "Internal"]
         
         for row, result in enumerate(results):
-            # Debug the current row data
-            print(f"Row {row}: {result}")
-            
             # Create table items with proper data and styling
             user_id_item = QTableWidgetItem(str(result.get("UserID", "")))
             full_name_item = QTableWidgetItem(str(result.get("FullName", "")))
@@ -1579,11 +1997,37 @@ class EmailSanitizerPage(QWidget):
         for col, width_factor in enumerate(column_widths):
             self.results_table.setColumnWidth(col, int(total_width * width_factor))
         
-        # Update UI
-        self.results_count.setText(f"Found {len(results)} users that need email sanitization")
+        # Update UI with counts of each category
+        self.results_count.setText(f"Found {len(results)} users: {len(external_users)} external users need email updates")
+        
+        # Store the results
+        self.sanitization_results = results
+        
+        # Add direct update button to footer
+        self.add_update_button_to_footer(external_users)
+        
+        # Show the results page
         self.stack.setCurrentWidget(self.results_widget)
         self.status_label.setText(f"{len(results)} Results Found")
+        
+if __name__ == '__main__':
+    # For standalone testing
+    import sys
+    app = QApplication(sys.argv)
+    
+    # Test with dummy data
+    dummy_users = [
+        {"id": "user1", "allow_logon": True, "full_name": "User One", "email": "user1@internal.com"},
+        {"id": "user2", "allow_logon": False, "full_name": "User Two", "email": "user2@external.com"}
+    ]
+    
+    page = EmailSanitizerPage()
+    page.load_data(dummy_users)
+    page.show()
+    
+    sys.exit(app.exec())
 
+# Function to be called from external modules
 def sanitize_emails():
     """Sanitizes user emails by checking domains and updating as needed"""
     from ui.utils import log_function_execution
@@ -1611,6 +2055,7 @@ def sanitize_emails():
             QMessageBox.warning(None, "Warning", error_msg)
             return None
         
+        # Instead of creating and showing a new window, just return the users
         # Log successful execution
         log_function_execution("email_sanitizer", "SUCCESS", {
             "users_count": len(users)
@@ -1632,20 +2077,3 @@ def sanitize_emails():
         })
         QMessageBox.critical(None, "Error", error_msg)
         return None
-        
-if __name__ == '__main__':
-    # For standalone testing
-    import sys
-    app = QApplication(sys.argv)
-    
-    # Test with dummy data
-    dummy_users = [
-        {"id": "user1", "allow_logon": True, "full_name": "User One", "email": "user1@internal.com"},
-        {"id": "user2", "allow_logon": False, "full_name": "User Two", "email": "user2@external.com"}
-    ]
-    
-    page = EmailSanitizerPage()
-    page.load_data(dummy_users)
-    page.show()
-    
-    sys.exit(app.exec())

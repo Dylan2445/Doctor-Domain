@@ -316,6 +316,13 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
     
+    # Ensure login page has a chance to try auto-login if credentials are saved
+    # This forces the proper initialization of the login page's auto-login feature
+    window.switch_page('login')
+    
+    # Then switch back to the main Email Tools page
+    QTimer.singleShot(100, lambda: window.switch_page('email'))
+    
     # Log successful startup
     log_message("Application UI initialized and displayed")
     
