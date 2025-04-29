@@ -1,0 +1,192 @@
+2025-04-29 14:13:13 - Attempting to sign in to iManage server...
+2025-04-29 14:13:13 - Authentication response status: 200
+2025-04-29 14:13:13 - Successfully authenticated with iManage server
+2025-04-29 14:13:14 - Successfully retrieved customer ID: 1799
+2025-04-29 14:13:14 - Using API base URL: https://cloudimanage.com/api/v2/customers/1799
+2025-04-29 14:13:14 - Starting email updates for 25 external users. Estimated completion: 14:16:04
+2025-04-29 14:13:14 - Starting email updates for 25 external users
+2025-04-29 14:13:14 - Processing user 1/25: ALEXLAUR
+2025-04-29 14:13:14 - Email: thisisatest@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> thisisatest@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:13:14 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/ALEXLAUR
+2025-04-29 14:13:14 - IMANAGE API REQUEST PAYLOAD: {"email": "thisisatest@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "ALEXLAUR"}
+2025-04-29 14:13:14 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:13:14 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2023-07-18T16:14:50.237Z", "distinguished_name": "alex", "edit_date": "2025-04-29T19:13:13.895Z", "email": "thisisatest@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "alex", "has_password": true, "id": "ALEXLAUR", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "chicago", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2025-03-31T18:15:32Z", "pwd_never_expire": true, "ssid": "388584205410632406", "type": "virtual", "user_id_ex": "ALEXLAUR", "user_nos": 2, "user_num": 388584205410632406}}
+2025-04-29 14:13:14 - User update successful: ALEXLAUR - Email changed from 'thisisatest@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'thisisatest@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:13:14 - Processing user 2/25: ARODRI
+2025-04-29 14:13:14 - Email: ARODRI@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> ARODRI@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:13:14 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/ARODRI
+2025-04-29 14:13:14 - IMANAGE API REQUEST PAYLOAD: {"email": "ARODRI@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "ARODRI"}
+2025-04-29 14:13:14 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:13:14 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2023-11-06T15:10:34.56Z", "distinguished_name": "ARODRI", "edit_date": "2025-04-29T19:13:14.118Z", "email": "ARODRI@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "ARODRI", "has_password": true, "id": "ARODRI", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": " ", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2024-09-18T15:01:33Z", "pwd_never_expire": true, "ssid": "100470043370415221", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "ALEXTESTrename", "user_nos": 2, "user_num": 100470043370415221}}
+2025-04-29 14:13:14 - User update successful: ARODRI - Email changed from 'ARODRI@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'ARODRI@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:13:14 - Processing user 3/25: DIANA123456
+2025-04-29 14:13:14 - Email: 99@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> 99@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:13:14 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/DIANA123456
+2025-04-29 14:13:14 - IMANAGE API REQUEST PAYLOAD: {"email": "99@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "DIANA123456"}
+2025-04-29 14:13:14 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:13:14 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2022-11-30T19:36:06.975Z", "distinguished_name": "", "edit_date": "2025-04-29T19:13:14.364Z", "email": "99@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "dianaTEST123456", "has_password": true, "id": "DIANA123456", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "D5_AZCUS01GEN02", "pwd_changed_ts": "2022-11-30T19:42:30Z", "pwd_never_expire": false, "ssid": "388220355358132783", "type": "enterprise", "user_domain": "srg.com", "user_id_ex": "DIANA123", "user_nos": 6, "user_num": 388220355358132783}}
+2025-04-29 14:13:14 - User update successful: DIANA123456 - Email changed from '99@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to '99@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:13:14 - Processing user 4/25: DIANATEST
+2025-04-29 14:13:14 - Email: dianatest@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> dianatest@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:13:14 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/DIANATEST
+2025-04-29 14:13:14 - IMANAGE API REQUEST PAYLOAD: {"email": "dianatest@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "DIANATEST"}
+2025-04-29 14:13:15 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:13:15 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2022-07-08T16:27:43.399Z", "edit_date": "2025-04-29T19:13:14.605Z", "email": "dianatest@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "Diana Test", "has_password": false, "id": "DIANATEST", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "D4_AZCUS01LB01", "pwd_never_expire": false, "ssid": "387999997846195146", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "Dianatest", "user_nos": 2, "user_num": 387999997846195146}}
+2025-04-29 14:13:15 - User update successful: DIANATEST - Email changed from 'dianatest@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'dianatest@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:13:15 - Processing user 5/25: ETHANAPOSTROPHETEST
+2025-04-29 14:13:15 - Email: ethanapostrophetest@e.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> ethanapostrophetest@e.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:13:15 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/ETHANAPOSTROPHETEST
+2025-04-29 14:13:15 - IMANAGE API REQUEST PAYLOAD: {"email": "ethanapostrophetest@e.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "ETHANAPOSTROPHETEST"}
+2025-04-29 14:13:15 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:13:15 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2023-11-28T20:20:17.791Z", "distinguished_name": "", "edit_date": "2025-04-29T19:13:14.879Z", "email": "ethanapostrophetest@e.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "ethanapostrophetest", "has_password": true, "id": "ETHANAPOSTROPHETEST", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2023-11-28T20:20:18Z", "pwd_never_expire": true, "ssid": "100470043379984231", "type": "enterprise", "user_domain": "srg.com", "user_id_ex": "ethanapostrophetest", "user_nos": 6, "user_num": 100470043379984231}}
+2025-04-29 14:13:15 - User update successful: ETHANAPOSTROPHETEST - Email changed from 'ethanapostrophetest@e.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'ethanapostrophetest@e.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:13:15 - Processing user 6/25: EXTERNALDISABLEDUSER
+2025-04-29 14:13:15 - Email: externalDisabledUser@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> externalDisabledUser@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:13:15 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/EXTERNALDISABLEDUSER
+2025-04-29 14:13:15 - IMANAGE API REQUEST PAYLOAD: {"email": "externalDisabledUser@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "EXTERNALDISABLEDUSER"}
+2025-04-29 14:13:15 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:13:16 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2024-04-11T15:42:47.708Z", "edit_date": "2025-04-29T19:13:15.213Z", "email": "externalDisabledUser@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "external Disabled User", "has_password": true, "id": "EXTERNALDISABLEDUSER", "ip_range_enabled": false, "is_external": true, "is_locked": false, "location": "", "preferred_library": "SRG", "pwd_changed_ts": "2024-04-11T15:42:47Z", "pwd_never_expire": true, "ssid": "100774204780838943", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "externalDisabledUser", "user_nos": 2, "user_num": 100774204780838943}}
+2025-04-29 14:13:16 - User update successful: EXTERNALDISABLEDUSER - Email changed from 'externalDisabledUser@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'externalDisabledUser@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:13:16 - Processing user 7/25: FATIMATIER2USER
+2025-04-29 14:13:16 - Email: tetsingemailadrees@test.test1.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> tetsingemailadrees@test.test1.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:13:16 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/FATIMATIER2USER
+2025-04-29 14:13:16 - IMANAGE API REQUEST PAYLOAD: {"email": "tetsingemailadrees@test.test1.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "FATIMATIER2USER"}
+2025-04-29 14:13:16 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:13:16 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2024-01-24T21:52:24.502Z", "distinguished_name": "", "edit_date": "2025-04-29T19:13:15.839Z", "email": "tetsingemailadrees@test.test1.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "FatimaTier2User", "has_password": true, "id": "FATIMATIER2USER", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": " ", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2024-01-24T21:52:24Z", "pwd_never_expire": true, "ssid": "100658355723023569", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "FATIMATIER2USER", "user_nos": 2, "user_num": 100658355723023569}}
+2025-04-29 14:13:16 - User update successful: FATIMATIER2USER - Email changed from 'tetsingemailadrees@test.test1.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'tetsingemailadrees@test.test1.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:13:16 - Processing user 8/25: FATIMATIER3USERX
+2025-04-29 14:13:16 - Email: FatimaTier3UserX@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> FatimaTier3UserX@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:13:16 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/FATIMATIER3USERX
+2025-04-29 14:13:16 - IMANAGE API REQUEST PAYLOAD: {"email": "FatimaTier3UserX@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "FATIMATIER3USERX"}
+2025-04-29 14:13:16 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:13:16 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2024-01-25T00:59:47.542Z", "distinguished_name": "test", "edit_date": "2025-04-29T19:13:16.131Z", "email": "FatimaTier3UserX@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "FatimaTier3UserX8", "has_password": true, "id": "FATIMATIER3USERX", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": " ", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2024-01-25T00:59:47Z", "pwd_never_expire": true, "ssid": "100658355723130748", "type": "enterprise", "user_domain": "srg.com", "user_id_ex": "FATIMATIER3USERX", "user_nos": 6, "user_num": 100658355723130748}}
+2025-04-29 14:13:16 - User update successful: FATIMATIER3USERX - Email changed from 'FatimaTier3UserX@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'FatimaTier3UserX@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:13:16 - Processing user 9/25: JOGDOMAINTEST
+2025-04-29 14:13:16 - Email: jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:13:16 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/JOGDOMAINTEST
+2025-04-29 14:13:16 - IMANAGE API REQUEST PAYLOAD: {"email": "jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "JOGDOMAINTEST"}
+2025-04-29 14:13:16 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:13:16 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2025-04-11T20:22:02.474Z", "distinguished_name": ", joseph g.-, iii,ou=users,ou=hou,ou=porter & hedges,dc=porterhedges dc=com", "edit_date": "2025-04-29T19:13:16.43Z", "email": "jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "jogDomainTest", "has_password": true, "id": "JOGDOMAINTEST", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "SRG", "pwd_changed_ts": "2025-04-11T20:22:01Z", "pwd_never_expire": true, "ssid": "101312268143294183", "type": "enterprise", "user_domain": "", "user_id_ex": "jogDomainTest", "user_nos": 6, "user_num": 101312268143294183}}
+2025-04-29 14:13:17 - User update successful: JOGDOMAINTEST - Email changed from 'jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:13:17 - Processing user 10/25: JOGDOMAINTEST2
+2025-04-29 14:13:17 - Email: jogDomainTest2@domain.com.Ext.Ext.Ext.Ext.Ext.Ext -> jogDomainTest2@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:13:17 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/JOGDOMAINTEST2
+2025-04-29 14:13:17 - IMANAGE API REQUEST PAYLOAD: {"email": "jogDomainTest2@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "JOGDOMAINTEST2"}
+2025-04-29 14:13:17 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:13:17 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2025-04-11T20:50:10.953Z", "distinguished_name": "cn=chin\\\\, andrew d.,ou=users,ou=it-ipc,ou=porter & hedges,dc=porterhedges,dc=com", "edit_date": "2025-04-29T19:13:16.737Z", "email": "jogDomainTest2@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "jogDomainTest2", "has_password": true, "id": "JOGDOMAINTEST2", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "SRG", "pwd_changed_ts": "2025-04-11T20:50:10Z", "pwd_never_expire": true, "ssid": "101312268143329343", "type": "enterprise", "user_domain": "", "user_id_ex": "jogDomainTest2", "user_nos": 6, "user_num": 101312268143329343}}
+2025-04-29 14:13:17 - User update successful: JOGDOMAINTEST2 - Email changed from 'jogDomainTest2@domain.com.Ext.Ext.Ext.Ext.Ext.Ext' to 'jogDomainTest2@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:13:17 - ⏱️ Pausing for 60 seconds to avoid API rate limiting...
+2025-04-29 14:14:21 - Updated ETA: 14:17:02
+2025-04-29 14:14:21 - Rate limit pause completed, resuming updates...
+2025-04-29 14:14:21 - Processing user 11/25: LIBRARYPOST
+2025-04-29 14:14:21 - Email: librarypost@test.com.Ext.Ext.Ext.Ext.Ext.Ext -> librarypost@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:14:21 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/LIBRARYPOST
+2025-04-29 14:14:21 - IMANAGE API REQUEST PAYLOAD: {"email": "librarypost@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "LIBRARYPOST"}
+2025-04-29 14:14:21 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:14:21 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2024-04-23T22:54:57.983Z", "distinguished_name": "", "edit_date": "2025-04-29T19:14:21.318Z", "email": "librarypost@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "has_password": true, "id": "LIBRARYPOST", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": " ", "preferred_library": "D5_AZCUS01GEN02", "pwd_changed_ts": "2024-04-23T23:05:18Z", "pwd_never_expire": false, "ssid": "100803226138820285", "type": "enterprise", "user_domain": "srg.com", "user_id_ex": "LIBRARYPOST", "user_nos": 6, "user_num": 100803226138820285}}
+2025-04-29 14:14:21 - User update successful: LIBRARYPOST - Email changed from 'librarypost@test.com.Ext.Ext.Ext.Ext.Ext.Ext' to 'librarypost@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:14:21 - Processing user 12/25: NEWTESTUSER
+2025-04-29 14:14:21 - Email: newtestuser@servicesite.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> newtestuser@servicesite.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:14:21 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/NEWTESTUSER
+2025-04-29 14:14:21 - IMANAGE API REQUEST PAYLOAD: {"email": "newtestuser@servicesite.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "NEWTESTUSER"}
+2025-04-29 14:14:22 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:14:22 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2024-06-18T13:41:57.04Z", "edit_date": "2025-04-29T19:14:21.703Z", "email": "newtestuser@servicesite.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": true, "full_name": "newtestuser", "has_password": true, "id": "NEWTESTUSER", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "SRG", "pwd_changed_ts": "2024-06-18T13:41:53Z", "pwd_never_expire": true, "ssid": "100820739277718223", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "newtestuser", "user_nos": 2, "user_num": 100820739277718223}}
+2025-04-29 14:14:22 - User update successful: NEWTESTUSER - Email changed from 'newtestuser@servicesite.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'newtestuser@servicesite.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:14:22 - Processing user 13/25: OPERATORTEST2
+2025-04-29 14:14:22 - Email: OPERATORTEST2@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> OPERATORTEST2@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:14:22 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/OPERATORTEST2
+2025-04-29 14:14:22 - IMANAGE API REQUEST PAYLOAD: {"email": "OPERATORTEST2@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "OPERATORTEST2"}
+2025-04-29 14:14:22 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:14:22 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2024-03-20T11:35:59.095Z", "edit_date": "2025-04-29T19:14:22.059Z", "email": "OPERATORTEST2@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "OPERATORTEST2", "has_password": true, "id": "OPERATORTEST2", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "SRG", "pwd_changed_ts": "2024-03-20T11:35:59Z", "pwd_never_expire": true, "ssid": "100733649256474861", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "OPERATORTEST2", "user_nos": 2, "user_num": 100733649256474861}}
+2025-04-29 14:14:22 - User update successful: OPERATORTEST2 - Email changed from 'OPERATORTEST2@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'OPERATORTEST2@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:14:22 - Processing user 14/25: OPERATORTEST3
+2025-04-29 14:14:22 - Email: OPERATORTEST3@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> OPERATORTEST3@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:14:22 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/OPERATORTEST3
+2025-04-29 14:14:22 - IMANAGE API REQUEST PAYLOAD: {"email": "OPERATORTEST3@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "OPERATORTEST3"}
+2025-04-29 14:14:23 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:14:23 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2024-03-20T11:36:27.865Z", "edit_date": "2025-04-29T19:14:22.458Z", "email": "OPERATORTEST3@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "OPERATORTEST3", "has_password": true, "id": "OPERATORTEST3", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "SRG", "pwd_changed_ts": "2024-03-20T11:36:27Z", "pwd_never_expire": true, "ssid": "100733649256475060", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "OPERATORTEST3", "user_nos": 2, "user_num": 100733649256475060}}
+2025-04-29 14:14:23 - User update successful: OPERATORTEST3 - Email changed from 'OPERATORTEST3@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'OPERATORTEST3@TEST.COM.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:14:23 - Processing user 15/25: RATELIMIT
+2025-04-29 14:14:23 - Email: ratelimit@test.test.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> ratelimit@test.test.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:14:23 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/RATELIMIT
+2025-04-29 14:14:23 - IMANAGE API REQUEST PAYLOAD: {"email": "ratelimit@test.test.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "RATELIMIT"}
+2025-04-29 14:14:23 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:14:23 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2024-07-15T21:08:58.549Z", "edit_date": "2025-04-29T19:14:22.875Z", "email": "ratelimit@test.test.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "Rate Limit", "has_password": true, "id": "RATELIMIT", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2024-07-15T21:08:54Z", "pwd_never_expire": true, "ssid": "100820739311374287", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "ratelimit", "user_nos": 2, "user_num": 100820739311374287}}
+2025-04-29 14:14:23 - User update successful: RATELIMIT - Email changed from 'ratelimit@test.test.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'ratelimit@test.test.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:14:23 - Processing user 16/25: SRGDISABLED
+2025-04-29 14:14:23 - Email: srgdisabled@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> srgdisabled@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:14:23 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/SRGDISABLED
+2025-04-29 14:14:23 - IMANAGE API REQUEST PAYLOAD: {"email": "srgdisabled@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "SRGDISABLED"}
+2025-04-29 14:14:23 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:14:23 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2023-06-05T00:18:15.094Z", "edit_date": "2025-04-29T19:14:23.302Z", "email": "srgdisabled@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "SRG Disabled User", "has_password": true, "id": "SRGDISABLED", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": " ", "preferred_library": "SRG", "pwd_changed_ts": "2023-06-05T00:18:15Z", "pwd_never_expire": false, "ssid": "388545069747156533", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "SRGDISABLED", "user_nos": 2, "user_num": 388545069747156533}}
+2025-04-29 14:14:23 - User update successful: SRGDISABLED - Email changed from 'srgdisabled@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'srgdisabled@srg.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:14:23 - Processing user 17/25: TEST1
+2025-04-29 14:14:23 - Email: 123@123.blah.local.Ext.Ext.Ext.Ext.Ext.Ext -> 123@123.blah.local.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:14:23 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/TEST1
+2025-04-29 14:14:23 - IMANAGE API REQUEST PAYLOAD: {"email": "123@123.blah.local.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "TEST1"}
+2025-04-29 14:14:24 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:14:24 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2022-08-18T21:35:00.971Z", "distinguished_name": "bloope blah ", "edit_date": "2025-04-29T19:14:23.717Z", "email": "123@123.blah.local.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": true, "full_name": "1231", "has_password": true, "id": "TEST1", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2022-08-18T21:35:18Z", "pwd_never_expire": false, "ssid": "388119127196802765", "type": "enterprise", "user_domain": "srg.com", "user_id_ex": "test", "user_nos": 6, "user_num": 388119127196802765}}
+2025-04-29 14:14:24 - User update successful: TEST1 - Email changed from '123@123.blah.local.Ext.Ext.Ext.Ext.Ext.Ext' to '123@123.blah.local.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:14:24 - Processing user 18/25: TEST1234567
+2025-04-29 14:14:24 - Email: TEST1234567@testet.ttt.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> TEST1234567@testet.ttt.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:14:24 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/TEST1234567
+2025-04-29 14:14:24 - IMANAGE API REQUEST PAYLOAD: {"email": "TEST1234567@testet.ttt.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "TEST1234567"}
+2025-04-29 14:14:24 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:14:24 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2024-07-16T20:21:06.166Z", "edit_date": "2025-04-29T19:14:24.154Z", "email": "TEST1234567@testet.ttt.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "test email", "has_password": true, "id": "TEST1234567", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2024-07-16T20:21:01Z", "pwd_never_expire": true, "ssid": "100820739313473407", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "TEST1234567", "user_nos": 2, "user_num": 100820739313473407}}
+2025-04-29 14:14:24 - User update successful: TEST1234567 - Email changed from 'TEST1234567@testet.ttt.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'TEST1234567@testet.ttt.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:14:24 - Processing user 19/25: TEST5
+2025-04-29 14:14:24 - Email: test5@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> test5@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:14:24 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/TEST5
+2025-04-29 14:14:24 - IMANAGE API REQUEST PAYLOAD: {"email": "test5@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "TEST5"}
+2025-04-29 14:14:25 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:14:25 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2023-07-18T16:08:50.873Z", "edit_date": "2025-04-29T19:14:24.538Z", "email": "test5@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "test5", "has_password": true, "id": "TEST5", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "Chicago", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2023-07-18T16:09:26Z", "pwd_never_expire": true, "ssid": "388584205410630691", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "test5", "user_nos": 2, "user_num": 388584205410630691}}
+2025-04-29 14:14:25 - User update successful: TEST5 - Email changed from 'test5@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'test5@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:14:25 - Processing user 20/25: TESTFPILLA
+2025-04-29 14:14:25 - Email: fpilla@sotos.ca.testt.Ext.Ext.Ext.Ext.Ext.Ext -> fpilla@sotos.ca.testt.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:14:25 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/TESTFPILLA
+2025-04-29 14:14:25 - IMANAGE API REQUEST PAYLOAD: {"email": "fpilla@sotos.ca.testt.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "TESTFPILLA"}
+2025-04-29 14:14:25 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:14:25 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2023-07-19T18:23:45.514Z", "distinguished_name": "", "edit_date": "2025-04-29T19:14:24.927Z", "email": "fpilla@sotos.ca.testt.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "TestFPILLA", "has_password": true, "id": "TESTFPILLA", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2023-07-19T18:23:45Z", "pwd_never_expire": true, "ssid": "388584205411094973", "type": "enterprise", "user_domain": "srg.com", "user_id_ex": "TESTFPILLA", "user_nos": 6, "user_num": 388584205411094973}}
+2025-04-29 14:14:25 - User update successful: TESTFPILLA - Email changed from 'fpilla@sotos.ca.testt.Ext.Ext.Ext.Ext.Ext.Ext' to 'fpilla@sotos.ca.testt.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:14:25 - ⏱️ Pausing for 60 seconds to avoid API rate limiting...
+2025-04-29 14:15:26 - Updated ETA: 14:15:59
+2025-04-29 14:15:26 - Rate limit pause completed, resuming updates...
+2025-04-29 14:15:26 - Processing user 21/25: TESTINGDISABLEDUSER
+2025-04-29 14:15:26 - Email: TestingDisabledUser@email.com.Ext.Ext.Ext.Ext.Ext.Ext -> TestingDisabledUser@email.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:15:26 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/TESTINGDISABLEDUSER
+2025-04-29 14:15:26 - IMANAGE API REQUEST PAYLOAD: {"email": "TestingDisabledUser@email.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "TESTINGDISABLEDUSER"}
+2025-04-29 14:15:27 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:15:27 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2023-06-14T16:58:51.978Z", "edit_date": "2025-04-29T19:15:26.51Z", "email": "TestingDisabledUser@email.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "TestingDisabledUser", "has_password": true, "id": "TESTINGDISABLEDUSER", "ip_range": "", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "SRG", "pwd_changed_ts": "2023-06-14T16:58:52Z", "pwd_never_expire": true, "ssid": "388584205397498218", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "TestingDisabledUser", "user_nos": 2, "user_num": 388584205397498218}}
+2025-04-29 14:15:27 - User update successful: TESTINGDISABLEDUSER - Email changed from 'TestingDisabledUser@email.com.Ext.Ext.Ext.Ext.Ext.Ext' to 'TestingDisabledUser@email.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:15:27 - Processing user 22/25: TESTTESTTESTTESTTEST
+2025-04-29 14:15:27 - Email: TestTestTestTestTest@test.com.Ext.Ext.Ext.Ext.Ext.Ext -> TestTestTestTestTest@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:15:27 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/TESTTESTTESTTESTTEST
+2025-04-29 14:15:27 - IMANAGE API REQUEST PAYLOAD: {"email": "TestTestTestTestTest@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "TESTTESTTESTTESTTEST"}
+2025-04-29 14:15:27 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:15:27 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2023-07-27T14:45:38.77Z", "edit_date": "2025-04-29T19:15:26.88Z", "email": "TestTestTestTestTest@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "TestTestTestTestTest", "has_password": true, "id": "TESTTESTTESTTESTTEST", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2023-07-27T14:45:38Z", "pwd_never_expire": false, "ssid": "388584205413995810", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "TestTestTestTestTest", "user_nos": 2, "user_num": 388584205413995810}}
+2025-04-29 14:15:27 - User update successful: TESTTESTTESTTESTTEST - Email changed from 'TestTestTestTestTest@test.com.Ext.Ext.Ext.Ext.Ext.Ext' to 'TestTestTestTestTest@test.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:15:27 - Processing user 23/25: TESTUSER10
+2025-04-29 14:15:27 - Email: testuser10@test.com.Ext.Ext.Ext.Ext.Ext -> testuser10@test.com.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:15:27 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/TESTUSER10
+2025-04-29 14:15:27 - IMANAGE API REQUEST PAYLOAD: {"email": "testuser10@test.com.Ext.Ext.Ext.Ext.Ext.Ext", "id": "TESTUSER10"}
+2025-04-29 14:15:27 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:15:27 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2022-12-06T16:52:19.104Z", "distinguished_name": "", "edit_date": "2025-04-29T19:15:27.267Z", "email": "testuser10@test.com.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "testuser10", "has_password": true, "id": "TESTUSER10", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": " ", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2023-05-11T19:17:29Z", "pwd_never_expire": true, "ssid": "388220355359434026", "type": "enterprise", "user_domain": "srg.com", "user_id_ex": "testuser10", "user_nos": 6, "user_num": 388220355359434026}}
+2025-04-29 14:15:27 - User update successful: TESTUSER10 - Email changed from 'testuser10@test.com.Ext.Ext.Ext.Ext.Ext' to 'testuser10@test.com.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:15:27 - Processing user 24/25: TESTUSERID
+2025-04-29 14:15:27 - Email: test@srg.com.Ext.Ext.Ext.Ext.Ext -> test@srg.com.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:15:27 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/TESTUSERID
+2025-04-29 14:15:27 - IMANAGE API REQUEST PAYLOAD: {"email": "test@srg.com.Ext.Ext.Ext.Ext.Ext.Ext", "id": "TESTUSERID"}
+2025-04-29 14:15:28 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:15:28 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2023-05-24T20:57:32.283Z", "distinguished_name": "cn=madden\\\\, fiona m. ,ou=kc,ou=firmusers,ou=1gpm, dc=lathropgage, dc=com", "edit_date": "2025-04-29T19:15:27.697Z", "email": "test@srg.com.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "Test User ID", "has_password": true, "id": "TESTUSERID", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": " ", "preferred_library": "SRG", "pwd_changed_ts": "2023-05-24T20:57:32Z", "pwd_never_expire": true, "ssid": "388545069742640505", "type": "enterprise", "user_domain": "srg.com", "user_id_ex": "TESTUSERID", "user_nos": 6, "user_num": 388545069742640505}}
+2025-04-29 14:15:28 - User update successful: TESTUSERID - Email changed from 'test@srg.com.Ext.Ext.Ext.Ext.Ext' to 'test@srg.com.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:15:28 - Processing user 25/25: THOMASTEST1
+2025-04-29 14:15:28 - Email: mcavoynum1@gmail.com.Ext.Ext.Ext.Ext.Ext -> mcavoynum1@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext
+2025-04-29 14:15:28 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/THOMASTEST1
+2025-04-29 14:15:28 - IMANAGE API REQUEST PAYLOAD: {"email": "mcavoynum1@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext", "id": "THOMASTEST1"}
+2025-04-29 14:15:28 - IMANAGE API RESPONSE STATUS: 200
+2025-04-29 14:15:28 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2024-07-04T10:50:00.263Z", "edit_date": "2025-04-29T19:15:28.093Z", "email": "mcavoynum1@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "Thomas Mcavoy Test 1", "has_password": true, "id": "THOMASTEST1", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "SRG", "pwd_changed_ts": "2024-12-18T09:53:47Z", "pwd_never_expire": false, "ssid": "100820739295433593", "type": "virtual", "user_domain": "srg.com", "user_id_ex": "THOMASTEST1", "user_nos": 2, "user_num": 100820739295433593}}
+2025-04-29 14:15:28 - User update successful: THOMASTEST1 - Email changed from 'mcavoynum1@gmail.com.Ext.Ext.Ext.Ext.Ext' to 'mcavoynum1@gmail.com.Ext.Ext.Ext.Ext.Ext.Ext'
+2025-04-29 14:15:28 - Successfully signed out and revoked token
+2025-04-29 14:15:28 - Email update process completed: 25 succeeded, 0 failed
+Total time: 0:02:14
+Success rate: 100.0%

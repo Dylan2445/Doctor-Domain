@@ -736,12 +736,32 @@ class EmailUpdaterPage(QWidget):
         external_users = [user for user in self.sanitized_users if user.get("Classification") == "External"]
         if not external_users:
             return
-        
+
         # Show progress UI
         self.progress_container.setVisible(True)
         self.progress_bar.setRange(0, len(external_users))
         self.progress_bar.setValue(0)
         self.progress_label.setText("Starting email updates...")
+        
+        # Create a detailed status panel for showing live updates
+        self.setup_status_panel()
+        
+        # Calculate initial ETA
+        start_time = datetime.datetime.now()
+        self.start_time = start_time
+        estimated_time_per_user = 2.0  # Initial estimate: 2 seconds per user
+        estimated_total_seconds = len(external_users) * estimated_time_per_user
+        
+        # Add pause time for every 10 users (rate limit)
+        rate_limit_pauses = (len(external_users) - 1) // self.rate_limit
+        estimated_total_seconds += rate_limit_pauses * self.pause_time
+        
+        estimated_completion_time = start_time + datetime.timedelta(seconds=estimated_total_seconds)
+        formatted_eta = estimated_completion_time.strftime("%H:%M:%S")
+        
+        self.update_eta_label(formatted_eta, estimated_total_seconds)
+        
+        # Disable buttons during update
         self.update_btn.setEnabled(False)
         self.back_btn.setEnabled(False)
         QApplication.processEvents()
@@ -761,6 +781,9 @@ class EmailUpdaterPage(QWidget):
         success_count = 0
         failed_count = 0
         
+        # Create a list to store the recent log entries
+        self.recent_logs = []
+        
         try:
             for i, user in enumerate(external_users):
                 user_id = user.get("UserID", "")
@@ -770,7 +793,12 @@ class EmailUpdaterPage(QWidget):
                 if user_id and new_email:
                     # Update progress
                     self.progress_bar.setValue(i)
-                    self.progress_label.setText(f"Updating user {i+1} of {len(external_users)}: {user_id}")
+                    progress_pct = int((i / len(external_users)) * 100)
+                    self.progress_bar.setFormat(f"{progress_pct}% ({i}/{len(external_users)})")
+                    
+                    status_msg = f"Updating user {i+1} of {len(external_users)}: {user_id}"
+                    self.progress_label.setText(status_msg)
+                    self.add_to_live_log(status_msg)
                     QApplication.processEvents()
                     
                     try:
@@ -820,32 +848,47 @@ class EmailUpdaterPage(QWidget):
                         
                         # Process response
                         if response.status_code in [200, 201, 204]:
-                            success_message = f"User update successful: {user_id} - Email changed from '{old_email}' to '{new_email}'"
+                            success_message = f"✅ User update successful: {user_id} - Email changed from '{old_email}' to '{new_email}'"
                             self.log_message(success_message)
                             system_log_message(success_message)
+                            self.add_to_live_log(success_message)
                             success_count += 1
                         else:
-                            error_message = f"User update failed: {user_id} - Status: {response.status_code}"
+                            error_message = f"❌ User update failed: {user_id} - Status: {response.status_code}"
                             if response.text:
                                 error_message += f" - {response.text}"
                             self.log_message(error_message)
                             system_log_message(error_message)
+                            self.add_to_live_log(error_message)
                             failed_count += 1
                         
                         # Rate limiting - pause to avoid overwhelming server
                         update_count += 1
-                        if update_count % self.rate_limit == 0:
-                            pause_message = f"Pausing for {self.pause_time} seconds to avoid system overload..."
-                            self.log_message(pause_message)
-                            system_log_message(pause_message)
-                            self.progress_label.setText(pause_message)
-                            QApplication.processEvents()
-                            time.sleep(self.pause_time)
+                        if update_count % self.rate_limit == 0 and i < len(external_users) - 1:
+                            # Instead of a dialog, update the UI directly
+                            self.handle_rate_limit_pause(self.pause_time, i, len(external_users))
+                            
+                            # Recalculate ETA after the pause
+                            current_time = datetime.datetime.now()
+                            elapsed_seconds = (current_time - start_time).total_seconds()
+                            processed_users = i + 1
+                            
+                            if processed_users > 0:
+                                seconds_per_user = elapsed_seconds / processed_users
+                                remaining_users = len(external_users) - processed_users
+                                remaining_pauses = remaining_users // self.rate_limit
+                                
+                                estimated_remaining_seconds = (remaining_users * seconds_per_user) + (remaining_pauses * self.pause_time)
+                                new_eta = current_time + datetime.timedelta(seconds=estimated_remaining_seconds)
+                                formatted_eta = new_eta.strftime("%H:%M:%S")
+                                
+                                self.update_eta_label(formatted_eta, estimated_remaining_seconds)
                             
                     except Exception as e:
                         error_message = f"Error updating user {user_id}: {str(e)}"
                         self.log_message(error_message)
                         system_log_message(error_message)
+                        self.add_to_live_log(f"❌ {error_message}")
                         
                         # Log exception details
                         import traceback
@@ -859,8 +902,21 @@ class EmailUpdaterPage(QWidget):
             self.progress_bar.setValue(len(external_users))
             result_message = f"Update completed: {success_count} succeeded, {failed_count} failed"
             self.progress_label.setText(result_message)
+            self.add_to_live_log(f"✅ {result_message}")
             self.log_message("Email update process completed for all users.")
             system_log_message("Email update process completed for all users.")
+            
+            # Calculate and show final statistics
+            end_time = datetime.datetime.now()
+            duration = end_time - start_time
+            duration_str = str(duration).split('.')[0]  # Remove microseconds
+            
+            stats_message = (
+                f"Total time: {duration_str}\n"
+                f"Total users processed: {len(external_users)}\n"
+                f"Success rate: {success_count/len(external_users)*100:.1f}%"
+            )
+            self.add_to_live_log(stats_message)
             
             # Show results message
             QMessageBox.information(self, "Update Complete", result_message)
@@ -869,6 +925,7 @@ class EmailUpdaterPage(QWidget):
             error_message = f"Error during email update: {str(e)}"
             self.log_message(error_message)
             system_log_message(error_message)
+            self.add_to_live_log(f"❌ {error_message}")
             QMessageBox.critical(self, "Update Error", f"An error occurred: {str(e)}")
         finally:
             # Clean up
@@ -878,6 +935,247 @@ class EmailUpdaterPage(QWidget):
             self.update_btn.setEnabled(True)
             self.back_btn.setEnabled(True)
             self.status_label.setText("Email update completed")
+    
+    def setup_status_panel(self):
+        """Create a status panel to show detailed progress"""
+        # If a status panel already exists, remove it
+        if hasattr(self, 'status_panel'):
+            # Check if the status panel is already in the layout
+            try:
+                if self.status_panel.parent():
+                    self.status_panel.parent().layout().removeWidget(self.status_panel)
+                    self.status_panel.deleteLater()
+            except Exception:
+                pass
+        
+        # Create status panel
+        self.status_panel = QFrame()
+        self.status_panel.setFrameShape(QFrame.Shape.StyledPanel)
+        self.status_panel.setStyleSheet("""
+            QFrame {
+                background-color: #F8FAFC;
+                border-radius: 8px;
+                border: 1px solid #E2E8F0;
+            }
+        """)
+        
+        status_layout = QVBoxLayout(self.status_panel)
+        status_layout.setContentsMargins(16, 16, 16, 16)
+        status_layout.setSpacing(12)
+        
+        # Status title
+        status_title = QLabel("Email Update Status")
+        status_title.setStyleSheet("""
+            font-weight: 600;
+            font-size: 16px;
+            color: #334155;
+        """)
+        status_layout.addWidget(status_title)
+        
+        # Live progress section
+        progress_section = QWidget()
+        progress_section_layout = QHBoxLayout(progress_section)
+        progress_section_layout.setContentsMargins(0, 0, 0, 0)
+        progress_section_layout.setSpacing(20)
+        
+        # Left column for counters
+        counters_widget = QWidget()
+        counters_layout = QVBoxLayout(counters_widget)
+        counters_layout.setContentsMargins(0, 0, 0, 0)
+        counters_layout.setSpacing(8)
+        
+        # ETA
+        eta_container = QWidget()
+        eta_layout = QHBoxLayout(eta_container)
+        eta_layout.setContentsMargins(0, 0, 0, 0)
+        eta_layout.setSpacing(8)
+        
+        eta_label = QLabel("Estimated completion:")
+        eta_label.setStyleSheet("color: #64748B; font-size: 14px;")
+        
+        self.eta_value = QLabel("Calculating...")
+        self.eta_value.setStyleSheet("color: #334155; font-weight: 500; font-size: 14px;")
+        
+        eta_layout.addWidget(eta_label)
+        eta_layout.addWidget(self.eta_value)
+        eta_layout.addStretch()
+        
+        counters_layout.addWidget(eta_container)
+        
+        # Progress section for both overall and rate limit progress
+        self.overall_progress_section = QWidget()
+        overall_progress_layout = QVBoxLayout(self.overall_progress_section)
+        overall_progress_layout.setContentsMargins(0, 0, 0, 0)
+        overall_progress_layout.setSpacing(4)
+        
+        overall_progress_label = QLabel("Overall Progress:")
+        overall_progress_label.setStyleSheet("color: #64748B; font-size: 14px;")
+        overall_progress_layout.addWidget(overall_progress_label)
+        
+        # We'll use the existing progress bar
+        counters_layout.addWidget(self.overall_progress_section)
+        
+        # Rate limit progress (only shown during rate limiting)
+        self.rate_limit_section = QWidget()
+        rate_limit_layout = QVBoxLayout(self.rate_limit_section)
+        rate_limit_layout.setContentsMargins(0, 0, 0, 0)
+        rate_limit_layout.setSpacing(4)
+        
+        self.rate_limit_label = QLabel("API Rate Limiting Pause:")
+        self.rate_limit_label.setStyleSheet("color: #64748B; font-size: 14px;")
+        rate_limit_layout.addWidget(self.rate_limit_label)
+        
+        self.rate_limit_progress = QProgressBar()
+        self.rate_limit_progress.setRange(0, 100)
+        self.rate_limit_progress.setValue(0)
+        self.rate_limit_progress.setFormat("%v seconds remaining")
+        self.rate_limit_progress.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid #E2E8F0;
+                border-radius: 4px;
+                background-color: #F1F5F9;
+                text-align: center;
+                padding: 2px;
+                height: 12px;
+                color: #334155;
+            }
+            QProgressBar::chunk {
+                background-color: #DBEAFE;
+                border-radius: 3px;
+            }
+        """)
+        rate_limit_layout.addWidget(self.rate_limit_progress)
+        
+        self.rate_limit_description = QLabel(
+            "To prevent overwhelming the server, we need to pause briefly between batches of updates."
+        )
+        self.rate_limit_description.setWordWrap(True)
+        self.rate_limit_description.setStyleSheet("color: #64748B; font-size: 12px; font-style: italic;")
+        rate_limit_layout.addWidget(self.rate_limit_description)
+        
+        counters_layout.addWidget(self.rate_limit_section)
+        self.rate_limit_section.hide()  # Initially hidden
+        
+        # Right column for live log
+        self.live_log = QTextEdit()
+        self.live_log.setReadOnly(True)
+        self.live_log.setStyleSheet("""
+            QTextEdit {
+                background-color: #FFFFFF;
+                border: 1px solid #E2E8F0;
+                border-radius: 4px;
+                padding: 8px;
+                font-family: monospace;
+                font-size: 12px;
+                color: #334155;
+            }
+        """)
+        self.live_log.setFixedHeight(200)  # Limit height
+        
+        # Add both columns to the progress section
+        progress_section_layout.addWidget(counters_widget, 1)  # 40% width
+        progress_section_layout.addWidget(self.live_log, 2)    # 60% width
+        
+        status_layout.addWidget(progress_section)
+        
+        # Find a suitable place to insert the status panel in the main layout
+        content_layout = None
+        for i in range(self.layout().count()):
+            item = self.layout().itemAt(i)
+            if item.widget() and isinstance(item.widget(), QFrame):
+                # Found the main content panel
+                content_panel = item.widget()
+                content_layout = content_panel.layout()
+                break
+        
+        if content_layout:
+            # Insert status panel before the action buttons but after the progress bar
+            for i in range(content_layout.count()):
+                item = content_layout.itemAt(i)
+                if item and item.widget() == self.progress_container:
+                    content_layout.insertWidget(i+1, self.status_panel)
+                    break
+    
+    def update_eta_label(self, formatted_time, seconds_remaining):
+        """Update the ETA label with the estimated completion time"""
+        remaining_time = datetime.timedelta(seconds=int(seconds_remaining))
+        
+        # Format as HH:MM:SS for display
+        hours, remainder = divmod(remaining_time.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        remaining_str = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+        
+        self.eta_value.setText(f"~{formatted_time} ({remaining_str} remaining)")
+    
+    def add_to_live_log(self, message):
+        """Add a message to the live log display"""
+        timestamp = datetime.datetime.now().strftime('%H:%M:%S')
+        full_message = f"[{timestamp}] {message}"
+        
+        # Keep only the most recent messages (limit to 100 for performance)
+        self.recent_logs.append(full_message)
+        if len(self.recent_logs) > 100:
+            self.recent_logs.pop(0)
+        
+        # Update the text edit with all recent logs
+        self.live_log.setPlainText('\n'.join(self.recent_logs))
+        
+        # Scroll to bottom
+        self.live_log.verticalScrollBar().setValue(
+            self.live_log.verticalScrollBar().maximum()
+        )
+        
+        # Process UI events to keep the interface responsive
+        QApplication.processEvents()
+    
+    def handle_rate_limit_pause(self, pause_seconds, current_user, total_users):
+        """Handle the rate limit pause within the main UI"""
+        pause_message = f"Pausing for {pause_seconds} seconds to avoid API rate limiting..."
+        self.log_message(pause_message)
+        system_log_message(pause_message)
+        self.add_to_live_log(f"⏱️ {pause_message}")
+        
+        # Show rate limit section
+        self.rate_limit_section.show()
+        self.rate_limit_progress.setRange(0, pause_seconds)
+        
+        # Update the main progress indicator
+        overall_progress = int(((current_user + 1) / total_users) * 100)
+        self.progress_bar.setValue(current_user + 1)
+        self.progress_bar.setFormat(f"{overall_progress}% ({current_user + 1}/{total_users})")
+        
+        # Update the progress label
+        self.progress_label.setText(f"API rate limit reached. Pausing before continuing...")
+        QApplication.processEvents()
+        
+        # Handle the countdown
+        for remaining in range(pause_seconds, 0, -1):
+            self.rate_limit_progress.setValue(pause_seconds - remaining)
+            self.rate_limit_progress.setFormat(f"{remaining} seconds remaining")
+            
+            # Update rate limit message in the main progress area
+            if remaining > 1:
+                self.progress_label.setText(f"API rate limit reached. Resuming in {remaining} seconds...")
+            else:
+                self.progress_label.setText(f"API rate limit reached. Resuming in 1 second...")
+                
+            QApplication.processEvents()
+            time.sleep(1)
+        
+        # Final update
+        self.rate_limit_progress.setValue(pause_seconds)
+        self.rate_limit_progress.setFormat("Resuming...")
+        self.progress_label.setText("Resuming email updates...")
+        QApplication.processEvents()
+        
+        # Hide rate limit section after pause completes
+        self.rate_limit_section.hide()
+        
+        # Log the resumption
+        resume_message = "Rate limit pause completed, resuming updates..."
+        self.log_message(resume_message)
+        system_log_message(resume_message)
+        self.add_to_live_log(f"▶️ {resume_message}")
     
     def log_message(self, message):
         """Write a message to the log file and system log"""
@@ -925,6 +1223,7 @@ def update_emails(sanitized_users):
     import requests
     import urllib3
     import time
+    import datetime
     
     # Disable SSL warnings for older server compatibility
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -952,12 +1251,24 @@ def update_emails(sanitized_users):
         try:
             with open(config_path, 'r') as f:
                 config = json.load(f)
-                server = config.get("server", "")
-                username = config.get("username", "")
-                password = config.get("password", "")
-                client_id = config.get("client_id", "")
-                client_secret = config.get("client_secret", "")
-                library = config.get("library", "")
+                # Support both lowercase and uppercase first letter keys for compatibility
+                server = config.get("Server", "") or config.get("server", "")
+                username = config.get("Username", "") or config.get("username", "")
+                password = config.get("Password", "") or config.get("password", "")
+                client_id = config.get("Client ID", "") or config.get("client_id", "")
+                client_secret = config.get("Client Secret", "") or config.get("client_secret", "")
+                library = config.get("Library ID", "") or config.get("library", "")
+                customer_id = config.get("Customer ID", "") or config.get("customer_id", "")
+                
+                # Log the config values we're using (masking sensitive values)
+                log_message(f"Using server: {server}")
+                log_message(f"Using library: {library}")
+                log_message(f"Using customer ID: {customer_id}")
+                log_message(f"Username provided: {'Yes' if username else 'No'}")
+                log_message(f"Password provided: {'Yes' if password else 'No'}")
+                log_message(f"Client ID provided: {'Yes' if client_id else 'No'}")
+                log_message(f"Client Secret provided: {'Yes' if client_secret else 'No'}")
+                
         except (FileNotFoundError, json.JSONDecodeError) as e:
             error_msg = f"Failed to load server configuration: {str(e)}"
             log_message(error_msg)
@@ -1135,18 +1446,6 @@ def update_emails(sanitized_users):
         
         log_to_file(f"Using API base URL: {base_url}")
         
-        # Create a backup of the original users data
-        temp_users_path = Path(__file__).parent.parent / "temp_users.json"
-        
-        # Load existing users data
-        try:
-            with open(temp_users_path, 'r') as f:
-                all_users = json.load(f)
-            log_message(f"Loaded existing user data from {temp_users_path}")
-        except (FileNotFoundError, json.JSONDecodeError) as e:
-            log_message(f"Error loading existing user data: {str(e)}")
-            all_users = sanitized_users  # Use sanitized_users as fallback
-        
         # API rate limiting settings
         pause_time = 60  # seconds
         rate_limit = 10  # API calls before pausing
@@ -1154,94 +1453,542 @@ def update_emails(sanitized_users):
         success_count = 0
         failed_count = 0
         
-        # Update user emails via API
-        updated_users = all_users.copy()
+        # Calculate initial ETA
+        start_time = datetime.datetime.now()
+        estimated_time_per_user = 2.0  # Initial estimate: 2 seconds per user
+        estimated_total_seconds = len(external_users) * estimated_time_per_user
         
-        log_to_file(f"Starting email updates for {len(external_users)} external users...")
+        # Add pause time for every 10 users (rate limit)
+        rate_limit_pauses = (len(external_users) - 1) // rate_limit
+        estimated_total_seconds += rate_limit_pauses * pause_time
         
-        for i, user in enumerate(updated_users):
-            user_id = user.get("UserID", "")
+        estimated_completion_time = start_time + datetime.timedelta(seconds=estimated_total_seconds)
+        formatted_eta = estimated_completion_time.strftime("%H:%M:%S")
+        
+        # Log the start of the update process with ETA
+        log_to_file(f"Starting email updates for {len(external_users)} external users. Estimated completion: {formatted_eta}")
+        
+        # Try to create a progress indicator if we're in a UI environment
+        progress_widget = None
+        try:
+            from PyQt6.QtWidgets import QApplication, QDialog, QVBoxLayout, QLabel, QProgressBar, QHBoxLayout, QFrame
+            from PyQt6.QtCore import Qt, QTimer
             
-            # Find matching external user
-            matching_ext_user = next((ext_user for ext_user in external_users 
-                                    if ext_user.get("UserID", "") == user_id), None)
-            
-            if matching_ext_user and matching_ext_user.get("Classification") == "External":
-                old_email = user.get("Email", "")
-                new_email = matching_ext_user.get("NewEmail", "")
-                
-                if new_email:
-                    # Prepare payload for update request
-                    payload = {
-                        "email": new_email
+            # Check if QApplication instance exists
+            if QApplication.instance():
+                progress_dialog = QDialog(None)
+                progress_dialog.setWindowTitle("Updating Emails")
+                progress_dialog.setFixedSize(600, 400)
+                progress_dialog.setStyleSheet("""
+                    QDialog {
+                        background-color: white;
+                        border-radius: 8px;
                     }
+                """)
+                
+                # Make it non-modal but stay on top
+                progress_dialog.setWindowFlags(
+                    Qt.WindowType.Dialog | 
+                    Qt.WindowType.WindowStaysOnTopHint
+                )
+                
+                # Main layout
+                main_layout = QVBoxLayout(progress_dialog)
+                main_layout.setContentsMargins(20, 20, 20, 20)
+                main_layout.setSpacing(15)
+                
+                # Title
+                title = QLabel("Email Update Progress")
+                title.setStyleSheet("""
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #1E293B;
+                """)
+                main_layout.addWidget(title)
+                
+                # Status section with counters
+                status_frame = QFrame()
+                status_frame.setStyleSheet("""
+                    background-color: #F8FAFC;
+                    border-radius: 8px;
+                    border: 1px solid #E2E8F0;
+                    padding: 10px;
+                """)
+                status_layout = QHBoxLayout(status_frame)
+                
+                # Left side - counters
+                counters_widget = QWidget()
+                counters_layout = QVBoxLayout(counters_widget)
+                counters_layout.setContentsMargins(0, 0, 0, 0)
+                counters_layout.setSpacing(10)
+                
+                # ETA
+                eta_widget = QWidget()
+                eta_layout = QHBoxLayout(eta_widget)
+                eta_layout.setContentsMargins(0, 0, 0, 0)
+                
+                eta_label = QLabel("Estimated Completion:")
+                eta_label.setStyleSheet("color: #64748B; font-weight: 500;")
+                
+                eta_value = QLabel(formatted_eta)
+                eta_value.setStyleSheet("color: #0F172A; font-weight: 600;")
+                
+                eta_layout.addWidget(eta_label)
+                eta_layout.addWidget(eta_value)
+                eta_layout.addStretch()
+                
+                counters_layout.addWidget(eta_widget)
+                
+                # Progress metrics
+                progress_metrics = QWidget()
+                metrics_layout = QHBoxLayout(progress_metrics)
+                metrics_layout.setContentsMargins(0, 0, 0, 0)
+                metrics_layout.setSpacing(20)
+                
+                # Processed count
+                processed_widget = QWidget()
+                processed_layout = QVBoxLayout(processed_widget)
+                processed_layout.setContentsMargins(0, 0, 0, 0)
+                processed_layout.setSpacing(2)
+                
+                processed_label = QLabel("Processed")
+                processed_label.setStyleSheet("color: #64748B; font-size: 12px;")
+                
+                processed_count = QLabel("0")
+                processed_count.setStyleSheet("color: #0F172A; font-size: 24px; font-weight: 600;")
+                processed_count.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                
+                processed_layout.addWidget(processed_label, alignment=Qt.AlignmentFlag.AlignCenter)
+                processed_layout.addWidget(processed_count, alignment=Qt.AlignmentFlag.AlignCenter)
+                
+                # Success count
+                success_widget = QWidget()
+                success_layout = QVBoxLayout(success_widget)
+                success_layout.setContentsMargins(0, 0, 0, 0)
+                success_layout.setSpacing(2)
+                
+                success_label = QLabel("Successful")
+                success_label.setStyleSheet("color: #64748B; font-size: 12px;")
+                
+                success_count_label = QLabel("0")
+                success_count_label.setStyleSheet("color: #059669; font-size: 24px; font-weight: 600;")
+                success_count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                
+                success_layout.addWidget(success_label, alignment=Qt.AlignmentFlag.AlignCenter)
+                success_layout.addWidget(success_count_label, alignment=Qt.AlignmentFlag.AlignCenter)
+                
+                # Failed count
+                failed_widget = QWidget()
+                failed_layout = QVBoxLayout(failed_widget)
+                failed_layout.setContentsMargins(0, 0, 0, 0)
+                failed_layout.setSpacing(2)
+                
+                failed_label = QLabel("Failed")
+                failed_label.setStyleSheet("color: #64748B; font-size: 12px;")
+                
+                failed_count_label = QLabel("0")
+                failed_count_label.setStyleSheet("color: #DC2626; font-size: 24px; font-weight: 600;")
+                failed_count_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                
+                failed_layout.addWidget(failed_label, alignment=Qt.AlignmentFlag.AlignCenter)
+                failed_layout.addWidget(failed_count_label, alignment=Qt.AlignmentFlag.AlignCenter)
+                
+                # Remaining count
+                remaining_widget = QWidget()
+                remaining_layout = QVBoxLayout(remaining_widget)
+                remaining_layout.setContentsMargins(0, 0, 0, 0)
+                remaining_layout.setSpacing(2)
+                
+                remaining_label = QLabel("Remaining")
+                remaining_label.setStyleSheet("color: #64748B; font-size: 12px;")
+                
+                remaining_count = QLabel(str(len(external_users)))
+                remaining_count.setStyleSheet("color: #0F172A; font-size: 24px; font-weight: 600;")
+                remaining_count.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                
+                remaining_layout.addWidget(remaining_label, alignment=Qt.AlignmentFlag.AlignCenter)
+                remaining_layout.addWidget(remaining_count, alignment=Qt.AlignmentFlag.AlignCenter)
+                
+                # Add all metrics to layout
+                metrics_layout.addWidget(processed_widget)
+                metrics_layout.addWidget(success_widget)
+                metrics_layout.addWidget(failed_widget)
+                metrics_layout.addWidget(remaining_widget)
+                
+                counters_layout.addWidget(progress_metrics)
+                
+                # Overall progress
+                progress_section = QWidget()
+                progress_section_layout = QVBoxLayout(progress_section)
+                progress_section_layout.setContentsMargins(0, 0, 0, 0)
+                progress_section_layout.setSpacing(5)
+                
+                progress_label = QLabel("Overall Progress:")
+                progress_label.setStyleSheet("color: #64748B;")
+                
+                progress_bar = QProgressBar()
+                progress_bar.setRange(0, len(external_users))
+                progress_bar.setValue(0)
+                progress_bar.setFormat("%v/%m (%p%)")
+                progress_bar.setStyleSheet("""
+                    QProgressBar {
+                        border: 1px solid #E2E8F0;
+                        border-radius: 4px;
+                        background-color: #F1F5F9;
+                        text-align: center;
+                        padding: 2px;
+                        height: 16px;
+                        color: #334155;
+                    }
+                    QProgressBar::chunk {
+                        background-color: #3B82F6;
+                        border-radius: 3px;
+                    }
+                """)
+                
+                progress_section_layout.addWidget(progress_label)
+                progress_section_layout.addWidget(progress_bar)
+                
+                counters_layout.addWidget(progress_section)
+                
+                # Rate limit section (hidden initially)
+                rate_limit_section = QWidget()
+                rate_limit_layout = QVBoxLayout(rate_limit_section)
+                rate_limit_layout.setContentsMargins(0, 0, 0, 0)
+                rate_limit_layout.setSpacing(5)
+                
+                rate_limit_label = QLabel("API Rate Limit Pause:")
+                rate_limit_label.setStyleSheet("color: #64748B;")
+                
+                rate_limit_progress = QProgressBar()
+                rate_limit_progress.setRange(0, pause_time)
+                rate_limit_progress.setValue(0)
+                rate_limit_progress.setFormat("%v seconds remaining")
+                rate_limit_progress.setStyleSheet("""
+                    QProgressBar {
+                        border: 1px solid #E2E8F0;
+                        border-radius: 4px;
+                        background-color: #F1F5F9;
+                        text-align: center;
+                        padding: 2px;
+                        height: 16px;
+                        color: #334155;
+                    }
+                    QProgressBar::chunk {
+                        background-color: #DBEAFE;
+                        border-radius: 3px;
+                    }
+                """)
+                
+                rate_limit_layout.addWidget(rate_limit_label)
+                rate_limit_layout.addWidget(rate_limit_progress)
+                
+                rate_limit_info = QLabel("To prevent overwhelming the server, we pause after every 10 users.")
+                rate_limit_info.setStyleSheet("color: #64748B; font-style: italic; font-size: 12px;")
+                rate_limit_info.setWordWrap(True)
+                
+                rate_limit_layout.addWidget(rate_limit_info)
+                
+                counters_layout.addWidget(rate_limit_section)
+                rate_limit_section.hide()  # Hide initially
+                
+                status_layout.addWidget(counters_widget)
+                
+                main_layout.addWidget(status_frame)
+                
+                # Current operation
+                current_op_label = QLabel("Starting email updates...")
+                current_op_label.setStyleSheet("color: #334155; font-size: 14px;")
+                main_layout.addWidget(current_op_label)
+                
+                # Log area
+                log_label = QLabel("Log:")
+                log_label.setStyleSheet("color: #64748B; font-weight: 500;")
+                main_layout.addWidget(log_label)
+                
+                from PyQt6.QtWidgets import QTextEdit
+                log_area = QTextEdit()
+                log_area.setReadOnly(True)
+                log_area.setStyleSheet("""
+                    QTextEdit {
+                        border: 1px solid #E2E8F0;
+                        border-radius: 4px;
+                        background-color: #F8FAFC;
+                        padding: 8px;
+                        font-family: monospace;
+                        font-size: 12px;
+                        color: #334155;
+                    }
+                """)
+                log_area.setFixedHeight(150)
+                main_layout.addWidget(log_area)
+                
+                # Show dialog
+                progress_dialog.show()
+                QApplication.processEvents()
+                
+                # Store references to controls for updating
+                progress_widget = {
+                    'dialog': progress_dialog,
+                    'eta_value': eta_value,
+                    'processed_count': processed_count,
+                    'success_count': success_count_label,
+                    'failed_count': failed_count_label,
+                    'remaining_count': remaining_count,
+                    'progress_bar': progress_bar,
+                    'current_op': current_op_label,
+                    'log_area': log_area,
+                    'rate_limit_section': rate_limit_section,
+                    'rate_limit_progress': rate_limit_progress,
+                    'logs': []  # Store recent logs
+                }
+                
+        except Exception as e:
+            log_to_file(f"Note: Unable to create progress UI: {str(e)}")
+            progress_widget = None
+        
+        # Custom logging function that updates UI if available
+        def log_with_ui(message, is_error=False, is_success=False):
+            # Standard logging
+            log_to_file(message)
+            
+            # Update UI if available
+            if progress_widget:
+                try:
+                    # Add message to logs
+                    timestamp = datetime.datetime.now().strftime('%H:%M:%S')
                     
-                    # Add ID for cloud instances
-                    if server.lower().endswith("cloudimanage.com"):
-                        payload["id"] = user_id
+                    # Format message with emoji based on type
+                    if is_error:
+                        formatted_message = f"❌ {message}"
+                    elif is_success:
+                        formatted_message = f"✅ {message}"
+                    else:
+                        formatted_message = message
                     
-                    update_url = f"{base_url}/users/{user_id}"
+                    log_entry = f"[{timestamp}] {formatted_message}"
+                    progress_widget['logs'].append(log_entry)
                     
-                    # Log the request
-                    request_log = f"IMANAGE API REQUEST: PATCH {update_url}"
-                    log_to_file(request_log)
+                    # Keep only latest 100 logs
+                    if len(progress_widget['logs']) > 100:
+                        progress_widget['logs'] = progress_widget['logs'][-100:]
                     
-                    payload_log = f"IMANAGE API REQUEST PAYLOAD: {json.dumps(payload)}"
-                    log_to_file(payload_log)
+                    # Update log display
+                    progress_widget['log_area'].setPlainText('\n'.join(progress_widget['logs']))
                     
-                    try:
-                        # Send the update request
-                        response = requests.patch(
-                            update_url,
-                            headers=api_headers,
-                            json=payload,
-                            verify=False
-                        )
-                        
-                        # Log the response
-                        response_log = f"IMANAGE API RESPONSE STATUS: {response.status_code}"
-                        log_to_file(response_log)
-                        
+                    # Scroll to bottom
+                    progress_widget['log_area'].verticalScrollBar().setValue(
+                        progress_widget['log_area'].verticalScrollBar().maximum()
+                    )
+                    
+                    # Process events to keep UI responsive
+                    QApplication.processEvents()
+                    
+                except Exception as e:
+                    # Just log the error but continue with standard logging
+                    print(f"Error updating UI log: {str(e)}")
+        
+        # Process each external user
+        log_with_ui(f"Starting email updates for {len(external_users)} external users")
+        
+        for i, user in enumerate(external_users):
+            user_id = user.get("UserID", "")
+            old_email = user.get("Email", "")
+            new_email = user.get("NewEmail", "")
+            
+            # Update progress UI
+            if progress_widget:
+                try:
+                    progress_widget['processed_count'].setText(str(i))
+                    progress_widget['remaining_count'].setText(str(len(external_users) - i))
+                    progress_widget['progress_bar'].setValue(i)
+                    progress_widget['current_op'].setText(f"Processing user {i+1} of {len(external_users)}: {user_id}")
+                    QApplication.processEvents()
+                except Exception:
+                    pass  # Continue even if UI update fails
+            
+            # Debug info for each user
+            log_with_ui(f"Processing user {i+1}/{len(external_users)}: {user_id}")
+            log_with_ui(f"Email: {old_email} -> {new_email}")
+            
+            # Skip users missing critical information
+            if not user_id:
+                log_with_ui(f"Skipping user - missing UserID", is_error=True)
+                continue
+                
+            if not new_email:
+                log_with_ui(f"Skipping user {user_id} - missing New Email", is_error=True)
+                continue
+                
+            # Skip if new email is the same as old email
+            if new_email == old_email:
+                log_with_ui(f"Skipping user {user_id} - new email is same as old email")
+                continue
+            
+            # Prepare payload for update request
+            payload = {
+                "email": new_email,
+                "id": user_id  # Always include the ID in the payload
+            }
+            
+            update_url = f"{base_url}/users/{user_id}"
+            
+            # Log the request
+            log_with_ui(f"IMANAGE API REQUEST: PATCH {update_url}")
+            log_with_ui(f"IMANAGE API REQUEST PAYLOAD: {json.dumps(payload)}")
+            
+            try:
+                # Send the update request
+                response = requests.patch(
+                    update_url,
+                    headers=api_headers,
+                    json=payload,
+                    verify=False
+                )
+                
+                # Log the response
+                log_with_ui(f"IMANAGE API RESPONSE STATUS: {response.status_code}")
+                
+                try:
+                    resp_json = response.json()
+                    log_with_ui(f"IMANAGE API RESPONSE BODY: {json.dumps(resp_json)}")
+                except:
+                    log_with_ui(f"IMANAGE API RESPONSE BODY: {response.text}")
+                
+                # Process response
+                if response.status_code in [200, 201, 204]:
+                    success_message = f"User update successful: {user_id} - Email changed from '{old_email}' to '{new_email}'"
+                    log_with_ui(success_message, is_success=True)
+                    
+                    # Update the email in our records
+                    user["Email"] = new_email
+                    success_count += 1
+                    
+                    # Update success count in UI
+                    if progress_widget:
                         try:
-                            resp_json = response.json()
-                            resp_body_log = f"IMANAGE API RESPONSE BODY: {json.dumps(resp_json)}"
-                            log_to_file(resp_body_log)
-                        except:
-                            resp_body_log = f"IMANAGE API RESPONSE BODY: {response.text}"
-                            log_to_file(resp_body_log)
-                        
-                        # Process response
-                        if response.status_code in [200, 201, 204]:
-                            success_message = f"User update successful: {user_id} - Email changed from '{old_email}' to '{new_email}'"
-                            log_to_file(success_message)
+                            progress_widget['success_count'].setText(str(success_count))
+                            QApplication.processEvents()
+                        except Exception:
+                            pass
                             
-                            # Update the email in our local data
-                            updated_users[i]["Email"] = new_email
-                            success_count += 1
-                        else:
-                            error_message = f"User update failed: {user_id} - Status: {response.status_code}"
-                            if response.text:
-                                error_message += f" - {response.text}"
-                            log_to_file(error_message)
-                            failed_count += 1
-                        
-                        # Rate limiting - pause to avoid overwhelming server
-                        api_count += 1
-                        if api_count % rate_limit == 0:
-                            pause_message = f"Pausing for {pause_time} seconds to avoid system overload..."
-                            log_to_file(pause_message)
+                else:
+                    error_message = f"User update failed: {user_id} - Status: {response.status_code}"
+                    if response.text:
+                        error_message += f" - {response.text}"
+                    log_with_ui(error_message, is_error=True)
+                    failed_count += 1
+                    
+                    # Update failed count in UI
+                    if progress_widget:
+                        try:
+                            progress_widget['failed_count'].setText(str(failed_count))
+                            QApplication.processEvents()
+                        except Exception:
+                            pass
+                
+                # Rate limiting - pause to avoid overwhelming server
+                api_count += 1
+                
+                if api_count % rate_limit == 0 and i < len(external_users) - 1:
+                    pause_message = f"Pausing for {pause_time} seconds to avoid API rate limiting..."
+                    log_with_ui(f"⏱️ {pause_message}")
+                    
+                    # Update UI to show rate limiting
+                    if progress_widget:
+                        try:
+                            progress_widget['current_op'].setText("API rate limit reached. Pausing before continuing...")
+                            progress_widget['rate_limit_section'].show()
+                            progress_widget['rate_limit_progress'].setRange(0, pause_time)
+                            QApplication.processEvents()
+                            
+                            # Count down the pause time
+                            for remaining in range(pause_time, 0, -1):
+                                progress_widget['rate_limit_progress'].setValue(pause_time - remaining)
+                                progress_widget['rate_limit_progress'].setFormat(f"{remaining} seconds remaining")
+                                
+                                # Update main status
+                                progress_widget['current_op'].setText(f"API rate limit reached. Resuming in {remaining} seconds...")
+                                
+                                # Keep UI responsive during pause
+                                QApplication.processEvents()
+                                time.sleep(1)
+                            
+                            # Done with pause
+                            progress_widget['rate_limit_progress'].setValue(pause_time)
+                            progress_widget['rate_limit_progress'].setFormat("Resuming...")
+                            progress_widget['current_op'].setText("Resuming email updates...")
+                            QApplication.processEvents()
+                            
+                            # Hide rate limit section when done
+                            progress_widget['rate_limit_section'].hide()
+                            
+                        except Exception as e:
+                            # If UI update fails, just sleep
+                            print(f"Error updating rate limit UI: {str(e)}")
                             time.sleep(pause_time)
+                    else:
+                        # No UI, just sleep
+                        time.sleep(pause_time)
+                    
+                    # Recalculate ETA after each pause
+                    current_time = datetime.datetime.now()
+                    elapsed_seconds = (current_time - start_time).total_seconds()
+                    
+                    if i > 0:  # Only recalculate if we've processed at least one user
+                        # Calculate actual time per user based on elapsed time
+                        seconds_per_user = elapsed_seconds / (i + 1)
+                        remaining_users = len(external_users) - (i + 1)
                         
-                    except Exception as e:
-                        error_message = f"Error updating user {user_id}: {str(e)}"
-                        log_to_file(error_message)
+                        # Estimate remaining pauses
+                        remaining_pauses = remaining_users // rate_limit
                         
-                        # Log exception details
-                        import traceback
-                        trace_message = f"EXCEPTION DETAILS: {traceback.format_exc()}"
-                        log_to_file(trace_message)
+                        # Calculate remaining time
+                        estimated_remaining_seconds = (remaining_users * seconds_per_user) + (remaining_pauses * pause_time)
+                        new_eta = current_time + datetime.timedelta(seconds=estimated_remaining_seconds)
+                        formatted_eta = new_eta.strftime("%H:%M:%S")
                         
-                        failed_count += 1
+                        # Log updated ETA
+                        log_with_ui(f"Updated ETA: {formatted_eta}")
+                        
+                        # Update UI
+                        if progress_widget:
+                            try:
+                                progress_widget['eta_value'].setText(formatted_eta)
+                                QApplication.processEvents()
+                            except Exception:
+                                pass
+                    
+                    log_with_ui("Rate limit pause completed, resuming updates...")
+                
+            except Exception as e:
+                error_message = f"Error updating user {user_id}: {str(e)}"
+                log_with_ui(error_message, is_error=True)
+                
+                # Log exception details
+                import traceback
+                trace_message = f"EXCEPTION DETAILS: {traceback.format_exc()}"
+                log_with_ui(trace_message)
+                
+                failed_count += 1
+                
+                # Update failed count in UI
+                if progress_widget:
+                    try:
+                        progress_widget['failed_count'].setText(str(failed_count))
+                        QApplication.processEvents()
+                    except Exception:
+                        pass
+        
+        # Final progress update
+        if progress_widget:
+            try:
+                progress_widget['processed_count'].setText(str(len(external_users)))
+                progress_widget['remaining_count'].setText("0")
+                progress_widget['progress_bar'].setValue(len(external_users))
+                QApplication.processEvents()
+            except Exception:
+                pass
         
         # Sign out / revoke token
         try:
@@ -1263,39 +2010,72 @@ def update_emails(sanitized_users):
             )
             
             if revoke_response.status_code == 200:
-                log_to_file("Successfully signed out and revoked token")
+                log_with_ui("Successfully signed out and revoked token")
             else:
-                log_to_file(f"Sign out failed with status code: {revoke_response.status_code}")
+                log_with_ui(f"Sign out failed with status code: {revoke_response.status_code}")
                 
         except Exception as e:
-            log_to_file(f"Error during sign out: {str(e)}")
+            log_with_ui(f"Error during sign out: {str(e)}")
         
-        # Save the updated users back to the file
+        # Save the updated users back to the file (if needed)
+        temp_users_path = Path(__file__).parent.parent / "temp_users.json"
         try:
+            with open(temp_users_path, 'r') as f:
+                all_users = json.load(f)
+                
+            # Update the emails in the full user list
+            for i, user in enumerate(all_users):
+                user_id = user.get('id', '')
+                # Find matching updated user
+                updated_user = next((u for u in external_users if u.get('UserID') == user_id and 
+                                    u.get('Email') != u.get('NewEmail')), None)
+                if updated_user and updated_user.get('NewEmail'):
+                    all_users[i]['email'] = updated_user.get('NewEmail')
+            
+            # Save back to file
             with open(temp_users_path, 'w') as f:
-                json.dump(updated_users, f, indent=2)
+                json.dump(all_users, f, indent=2)
             log_message(f"Successfully saved updated user data to {temp_users_path}")
         except Exception as e:
-            log_message(f"Error saving updated user data: {str(e)}")
-            log_function_execution("email_updater", "FAILED", {
-                "error": f"Failed to save updated user data: {str(e)}"
-            })
-            return sanitized_users  # Return original data on failure
+            log_message(f"Note: Updated users were not saved back to temp file: {str(e)}")
+        
+        # Final stats
+        end_time = datetime.datetime.now()
+        duration = end_time - start_time
+        duration_str = str(duration).split('.')[0]  # Remove microseconds
+        
+        stats_message = (
+            f"Email update process completed: {success_count} succeeded, {failed_count} failed\n"
+            f"Total time: {duration_str}\n"
+            f"Success rate: {success_count/len(external_users)*100:.1f}%"
+        )
+        log_with_ui(stats_message, is_success=True)
         
         # Log completion
-        completion_message = f"Email update process completed: {success_count} succeeded, {failed_count} failed"
-        log_to_file(completion_message)
         log_function_execution("email_updater", "COMPLETE", {
             "updated_count": success_count,
             "failed_count": failed_count,
-            "message": completion_message
+            "message": stats_message.split('\n')[0]  # Just use first line
         })
         
-        from PyQt6.QtWidgets import QMessageBox
-        QMessageBox.information(None, "Update Complete", completion_message)
+        # If we have a progress dialog, keep it open a moment, then close
+        if progress_widget:
+            try:
+                # Display summary in current operation
+                progress_widget['current_op'].setText(f"Update completed: {success_count} succeeded, {failed_count} failed")
+                QApplication.processEvents()
+                
+                # Wait 2 seconds then close
+                QTimer.singleShot(2000, progress_widget['dialog'].close)
+            except Exception:
+                pass
         
-        # Return the updated users for the UI to handle
-        return updated_users
+        # Show final message box
+        from PyQt6.QtWidgets import QMessageBox
+        QMessageBox.information(None, "Update Complete", stats_message)
+        
+        # Return the updated users
+        return sanitized_users
             
     except Exception as e:
         error_msg = f"Error in email update process: {str(e)}"
@@ -1303,6 +2083,14 @@ def update_emails(sanitized_users):
         log_function_execution("email_updater", "FAILED", {
             "error": error_msg
         })
+        
+        # Close the progress dialog if it exists
+        if 'progress_widget' in locals() and progress_widget:
+            try:
+                progress_widget['dialog'].close()
+            except Exception:
+                pass
+        
         from PyQt6.QtWidgets import QMessageBox
         QMessageBox.critical(None, "Error", error_msg)
         return sanitized_users  # Return original data on failure

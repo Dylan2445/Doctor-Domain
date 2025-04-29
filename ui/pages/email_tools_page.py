@@ -815,7 +815,26 @@ Request URL: https://{server}/work/api/v2/customers/{customer_id}/libraries/{lib
             
             # Process the updates
             try:
-                # Loop through external users and update them
+                # Log that we're about to call the update_emails function
+                log_message("DEBUG: About to call update_emails function")
+                
+                # Pass the connection settings directly to the update_emails function
+                # This is a clean approach that doesn't modify the login_settings.json file
+                from scripts.email_updater import update_emails
+                
+                # Log the server we're using for debug purposes
+                log_message(f"DEBUG: Using server: {server}")
+                
+                # Actually call the update_emails function from the email_updater module
+                updated_users = update_emails(self.external_users)
+                log_message(f"DEBUG: update_emails function returned {len(updated_users) if updated_users else 0} users")
+                
+                # For debug purposes, log a sample of the first user if available
+                if updated_users and len(updated_users) > 0:
+                    sample_user = updated_users[0]
+                    log_message(f"DEBUG: Sample updated user - UserID: {sample_user.get('UserID', 'N/A')}, Email: {sample_user.get('Email', 'N/A')}")
+                
+                # Loop through external users and update progress on UI
                 for i, user in enumerate(self.external_users):
                     # Update UI
                     progress_percent = 70 + int((i / len(self.external_users)) * 25)
