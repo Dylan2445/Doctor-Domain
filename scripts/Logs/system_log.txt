@@ -239,3 +239,42 @@ Success rate: 100.0%
 2025-04-29 14:21:42 - Function get_all_users: STARTED - URL: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
 2025-04-29 14:21:42 - Function get_all_users: SUCCESS - URL: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
 2025-04-29 14:21:42 - Function get_user_list: SUCCESS - users_count: 237
+2025-04-29 14:32:53 - Function get_all_users: STARTED - URL: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-29 14:32:53 - Function get_all_users: SUCCESS - URL: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
+2025-04-29 14:32:53 - Function get_user_list: SUCCESS - users_count: 237
+2025-04-29 14:32:58 - Application starting...
+2025-04-29 14:32:58 - Application UI initialized and displayed
+2025-04-29 14:33:03 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-29 14:33:03 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-29 14:33:04 - Authentication state changed: User logged in
+2025-04-29 14:33:04 - Authentication state changed: User logged in
+2025-04-29 14:33:06 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-29 14:33:06 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
+2025-04-29 14:33:06 - Function get_user_list: SUCCESS - users_count: 237
+2025-04-29 14:37:38 - Application starting...
+2025-04-29 14:37:39 - Application UI initialized and displayed
+2025-04-29 14:37:45 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-29 14:37:45 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-29 14:37:46 - Authentication state changed: User logged in
+2025-04-29 14:37:46 - Authentication state changed: User logged in
+2025-04-29 14:37:47 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-29 14:37:48 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
+2025-04-29 14:37:48 - Function get_user_list: SUCCESS - users_count: 237
+2025-04-29 14:43:19 - Application starting...
+2025-04-29 14:43:20 - Application UI initialized and displayed
+2025-04-29 14:43:24 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-29 14:43:24 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-29 14:43:25 - Authentication state changed: User logged in
+2025-04-29 14:43:25 - Authentication state changed: User logged in
+2025-04-29 14:53:32 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-29 14:53:32 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
+2025-04-29 14:53:32 - Function get_user_list: SUCCESS - users_count: 237
+2025-04-29 15:20:09 - Application starting...
+2025-04-29 15:20:10 - Application UI initialized and displayed
+2025-04-29 17:13:25 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-29 17:13:25 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-29 17:13:26 - Authentication state changed: User logged in
+2025-04-29 17:13:26 - Authentication state changed: User logged in
+2025-04-29 17:13:28 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-29 17:13:28 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
+2025-04-29 17:13:28 - Function get_user_list: SUCCESS - users_count: 237

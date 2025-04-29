@@ -166,6 +166,7 @@
 2025-04-29 14:13:16 - Email: jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext -> jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext
 2025-04-29 14:13:16 - IMANAGE API REQUEST PAYLOAD: {"email": "jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "JOGDOMAINTEST"}
 2025-04-29 14:13:16 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2025-04-11T20:22:02.474Z", "distinguished_name": ", joseph g.-, iii,ou=users,ou=hou,ou=porter & hedges,dc=porterhedges dc=com", "edit_date": "2025-04-29T19:13:16.43Z", "email": "jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "jogDomainTest", "has_password": true, "id": "JOGDOMAINTEST", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "SRG", "pwd_changed_ts": "2025-04-11T20:22:01Z", "pwd_never_expire": true, "ssid": "101312268143294183", "type": "enterprise", "user_domain": "", "user_id_ex": "jogDomainTest", "user_nos": 6, "user_num": 101312268143294183}}
+2025-04-29 14:13:16 - IMANAGE API REQUEST PAYLOAD: {"email": "tetsingemailadrees@test.test1.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "id": "FATIMATIER2USER"}
 2025-04-29 14:13:17 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/JOGDOMAINTEST2
 2025-04-29 14:13:17 - [EMAIL UPDATER] User update successful: JOGDOMAINTEST - Email changed from 'jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext' to 'jogDomainTest@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
 2025-04-29 14:13:17 - [EMAIL UPDATER] Processing user 10/25: JOGDOMAINTEST2
@@ -184,6 +185,7 @@
 2025-04-29 14:13:17 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2025-04-11T20:50:10.953Z", "distinguished_name": "cn=chin\\\\, andrew d.,ou=users,ou=it-ipc,ou=porter & hedges,dc=porterhedges,dc=com", "edit_date": "2025-04-29T19:13:16.737Z", "email": "jogDomainTest2@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "jogDomainTest2", "has_password": true, "id": "JOGDOMAINTEST2", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "SRG", "pwd_changed_ts": "2025-04-11T20:50:10Z", "pwd_never_expire": true, "ssid": "101312268143329343", "type": "enterprise", "user_domain": "", "user_id_ex": "jogDomainTest2", "user_nos": 6, "user_num": 101312268143329343}}
 2025-04-29 14:13:17 - User update successful: JOGDOMAINTEST2 - Email changed from 'jogDomainTest2@domain.com.Ext.Ext.Ext.Ext.Ext.Ext' to 'jogDomainTest2@domain.com.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
 2025-04-29 14:13:17 - ⏱️ Pausing for 60 seconds to avoid API rate limiting...2025-04-29 14:14:21 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/LIBRARYPOST
+2025-04-29 14:13:17 - ⏱️ Pausing for 60 seconds to avoid API rate limiting...
 2025-04-29 14:14:21 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/NEWTESTUSER
 2025-04-29 14:14:21 - [EMAIL UPDATER] Updated ETA: 14:17:02
 2025-04-29 14:14:21 - [EMAIL UPDATER] Rate limit pause completed, resuming updates...
@@ -320,6 +322,7 @@
 2025-04-29 14:14:25 - IMANAGE API RESPONSE BODY: {"data": {"allow_logon": false, "create_date": "2023-07-19T18:23:45.514Z", "distinguished_name": "", "edit_date": "2025-04-29T19:14:24.927Z", "email": "fpilla@sotos.ca.testt.Ext.Ext.Ext.Ext.Ext.Ext.Ext", "enable_ip_range": false, "failed_logins": 0, "force_password_change": false, "full_name": "TestFPILLA", "has_password": true, "id": "TESTFPILLA", "ip_range_enabled": false, "is_external": false, "is_locked": false, "location": "", "preferred_library": "D3_AZCUS01GEN01", "pwd_changed_ts": "2023-07-19T18:23:45Z", "pwd_never_expire": true, "ssid": "388584205411094973", "type": "enterprise", "user_domain": "srg.com", "user_id_ex": "TESTFPILLA", "user_nos": 6, "user_num": 388584205411094973}}
 2025-04-29 14:14:25 - User update successful: TESTFPILLA - Email changed from 'fpilla@sotos.ca.testt.Ext.Ext.Ext.Ext.Ext.Ext' to 'fpilla@sotos.ca.testt.Ext.Ext.Ext.Ext.Ext.Ext.Ext'
 2025-04-29 14:14:25 - ⏱️ Pausing for 60 seconds to avoid API rate limiting...2025-04-29 14:15:26 - IMANAGE API REQUEST: PATCH https://cloudimanage.com/api/v2/customers/1799/users/TESTINGDISABLEDUSER
+2025-04-29 14:14:25 - ⏱️ Pausing for 60 seconds to avoid API rate limiting...
 2025-04-29 14:15:26 - [EMAIL UPDATER] Updated ETA: 14:15:59
 2025-04-29 14:15:26 - [EMAIL UPDATER] Rate limit pause completed, resuming updates...
 2025-04-29 14:15:26 - [EMAIL UPDATER] Processing user 21/25: TESTINGDISABLEDUSER
@@ -406,3 +409,58 @@
 2025-04-29 14:21:42 - Function get_user_list: SUCCESS - users_count: 237
 2025-04-29 14:21:46 - Total time: 0:02:14
 2025-04-29 14:21:46 - Success rate: 100.0%
+2025-04-29 14:32:53 - Function get_all_users: STARTED - URL: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-29 14:32:53 - Function get_all_users: SUCCESS - URL: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
+2025-04-29 14:32:53 - Function get_user_list: SUCCESS - users_count: 237
+2025-04-29 14:32:58 - Total time: 0:02:14
+2025-04-29 14:32:58 - Success rate: 100.0%
+2025-04-29 14:32:58 - Application starting...
+2025-04-29 14:32:58 - Application UI initialized and displayed
+2025-04-29 14:33:03 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-29 14:33:03 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-29 14:33:04 - Authentication state changed: User logged in
+2025-04-29 14:33:06 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-29 14:33:06 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
+2025-04-29 14:33:06 - Function get_user_list: SUCCESS - users_count: 237
+2025-04-29 14:33:08 - Total time: 0:02:14
+2025-04-29 14:33:08 - Success rate: 100.0%
+2025-04-29 14:37:38 - Total time: 0:02:14
+2025-04-29 14:37:38 - Success rate: 100.0%
+2025-04-29 14:37:38 - Application starting...
+2025-04-29 14:37:39 - Application UI initialized and displayed
+2025-04-29 14:37:45 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-29 14:37:45 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-29 14:37:46 - Authentication state changed: User logged in
+2025-04-29 14:37:47 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-29 14:37:48 - Total time: 0:02:14
+2025-04-29 14:37:48 - Success rate: 100.0%
+2025-04-29 14:37:48 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
+2025-04-29 14:37:48 - Function get_user_list: SUCCESS - users_count: 237
+2025-04-29 14:43:19 - Application starting...
+2025-04-29 14:43:20 - Total time: 0:02:14
+2025-04-29 14:43:20 - Success rate: 100.0%
+2025-04-29 14:43:20 - Application UI initialized and displayed
+2025-04-29 14:43:24 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-29 14:43:24 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-29 14:43:25 - Authentication state changed: User logged in
+2025-04-29 14:43:30 - Total time: 0:02:14
+2025-04-29 14:43:30 - Success rate: 100.0%
+2025-04-29 14:53:32 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-29 14:53:32 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
+2025-04-29 14:53:32 - Function get_user_list: SUCCESS - users_count: 237
+2025-04-29 14:53:41 - Total time: 0:02:14
+2025-04-29 14:53:41 - Success rate: 100.0%
+2025-04-29 15:20:09 - Application starting...
+2025-04-29 15:20:10 - Total time: 0:02:14
+2025-04-29 15:20:10 - Success rate: 100.0%
+2025-04-29 15:20:10 - Application UI initialized and displayed
+2025-04-29 15:20:20 - Total time: 0:02:14
+2025-04-29 15:20:20 - Success rate: 100.0%
+2025-04-29 17:13:25 - Login attempt: dylan.thompson@cloudsupport.local to server cloudimanage.com
+2025-04-29 17:13:25 - Login successful: dylan.thompson@cloudsupport.local authenticated to server cloudimanage.com
+2025-04-29 17:13:26 - Authentication state changed: User logged in
+2025-04-29 17:13:28 - Function get_all_users: STARTED - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, parameters: {'limit': 9999, 'offset': 0}
+2025-04-29 17:13:28 - Function get_all_users: SUCCESS - api_url: https://cloudimanage.com/work/api/v2/customers/1799/users, users_count: 237
+2025-04-29 17:13:28 - Function get_user_list: SUCCESS - users_count: 237
+2025-04-29 17:13:32 - Total time: 0:02:14
+2025-04-29 17:13:32 - Success rate: 100.0%

@@ -110,109 +110,132 @@ class EmailToolsPage(QWidget):
         """Create a clean, minimalist configuration page for email sanitizer"""
         page = QWidget()
         layout = QVBoxLayout(page)
-        layout.setContentsMargins(30, 30, 30, 30)
-        layout.setSpacing(30)
+        layout.setContentsMargins(20, 20, 20, 20)  # Reduced margins
+        layout.setSpacing(10)  # Even more reduced spacing
         
-        # Clean header with title only
+        # Create a header with title and description inline to save vertical space
+        header_widget = QWidget()
+        header_layout = QHBoxLayout(header_widget)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Title with more compact styling
         title = QLabel("Email Sanitizer")
         title.setStyleSheet("""
-            font-size: 28px; 
+            font-size: 22px; 
             font-weight: 600; 
             color: #1E293B;
         """)
         
-        # Simple description
+        header_layout.addWidget(title)
+        header_layout.addStretch()
+        
+        # Add header to main layout
+        layout.addWidget(header_widget)
+        
+        # Simple description - more compact
         description = QLabel("Identify and update external user email addresses by appending '.Ext'")
         description.setWordWrap(True)
         description.setStyleSheet("""
             color: #64748B; 
-            font-size: 16px;
-            margin-top: -15px;
+            font-size: 13px;
+            margin-bottom: 5px;
         """)
+        layout.addWidget(description)
         
-        # Main content in a clean card
+        # Main content in a clean card with reduced padding
         content_card = QWidget()
         content_card.setObjectName("contentCard")
         content_card.setStyleSheet("""
             #contentCard {
                 background-color: white;
-                border-radius: 12px;
+                border-radius: 8px;
             }
         """)
         
         content_layout = QVBoxLayout(content_card)
-        content_layout.setContentsMargins(40, 40, 40, 40)
-        content_layout.setSpacing(30)
+        content_layout.setContentsMargins(15, 15, 15, 15)  # Even more reduced padding
+        content_layout.setSpacing(10)  # Reduced spacing
         
-        # Section title
+        # More compact section title
         config_title = QLabel("Domain Configuration")
         config_title.setStyleSheet("""
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 600;
             color: #1E293B;
+            margin-bottom: 2px;
         """)
         
         # Option selection with clean styling
         options_container = QWidget()
         options_layout = QVBoxLayout(options_container)
         options_layout.setContentsMargins(0, 0, 0, 0)
-        options_layout.setSpacing(15)
+        options_layout.setSpacing(6)  # More reduced spacing
         
-        # Option label
+        # Option label inline with options to save space
+        option_header = QWidget()
+        option_header_layout = QHBoxLayout(option_header)
+        option_header_layout.setContentsMargins(0, 0, 0, 0)
+        option_header_layout.setSpacing(0)
+        
         option_label = QLabel("Select a domain detection method:")
-        option_label.setStyleSheet("color: #64748B; font-size: 16px;")
+        option_label.setStyleSheet("color: #64748B; font-size: 13px;")
         
-        # Radio buttons as clean cards
+        option_header_layout.addWidget(option_label)
+        option_header_layout.addStretch()
+        
+        options_layout.addWidget(option_header)
+        
+        # Radio buttons with reduced height for compactness
         self.manual_radio = QPushButton("Provide company domains manually")
         self.manual_radio.setCheckable(True)
         self.manual_radio.setChecked(True)
         self.manual_radio.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.manual_radio.setMinimumHeight(60)
+        self.manual_radio.setMinimumHeight(34)  # Even more reduced height
         self.manual_radio.setStyleSheet("""
             QPushButton {
                 text-align: left;
-                padding: 0 25px;
+                padding: 0 15px;
                 background-color: white;
-                border-radius: 10px;
-                font-size: 16px;
+                border-radius: 6px;
+                font-size: 13px;
                 color: #334155;
                 font-weight: 500;
-                border: 2px solid #E2E8F0;
+                border: 1px solid #E2E8F0;
             }
             QPushButton:checked {
                 background-color: #F8FAFC;
-                border: 2px solid #3B82F6;
+                border: 1px solid #3B82F6;
                 color: #1E40AF;
             }
             QPushButton:hover:!checked {
                 background-color: #F8FAFC;
-                border: 2px solid #CBD5E1;
+                border: 1px solid #CBD5E1;
             }
         """)
         
         self.auto_radio = QPushButton("Automatically detect company domains")
         self.auto_radio.setCheckable(True)
         self.auto_radio.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.auto_radio.setMinimumHeight(60)
+        self.auto_radio.setMinimumHeight(34)  # Even more reduced height
         self.auto_radio.setStyleSheet("""
             QPushButton {
                 text-align: left;
-                padding: 0 25px;
+                padding: 0 15px;
                 background-color: white;
-                border-radius: 10px;
-                font-size: 16px;
+                border-radius: 6px;
+                font-size: 13px;
                 color: #334155;
                 font-weight: 500;
-                border: 2px solid #E2E8F0;
+                border: 1px solid #E2E8F0;
             }
             QPushButton:checked {
                 background-color: #F8FAFC;
-                border: 2px solid #3B82F6;
+                border: 1px solid #3B82F6;
                 color: #1E40AF;
             }
             QPushButton:hover:!checked {
                 background-color: #F8FAFC;
-                border: 2px solid #CBD5E1;
+                border: 1px solid #CBD5E1;
             }
         """)
         
@@ -220,93 +243,122 @@ class EmailToolsPage(QWidget):
         self.manual_radio.clicked.connect(lambda: self.toggle_radio_buttons(True))
         self.auto_radio.clicked.connect(lambda: self.toggle_radio_buttons(False))
         
-        options_layout.addWidget(option_label)
         options_layout.addWidget(self.manual_radio)
         options_layout.addWidget(self.auto_radio)
         
         # Domain input with clean styling
         self.domain_section = QWidget()
         domain_layout = QVBoxLayout(self.domain_section)
-        domain_layout.setContentsMargins(0, 5, 0, 0)
-        domain_layout.setSpacing(15)
+        domain_layout.setContentsMargins(0, 3, 0, 0)
+        domain_layout.setSpacing(3)  # Reduced spacing
+        
+        # Combine domain label and hint in a more compact way
+        domain_header = QWidget()
+        domain_header_layout = QHBoxLayout(domain_header)
+        domain_header_layout.setContentsMargins(0, 0, 0, 0)
         
         # Domain label
         domain_label = QLabel("Enter company domains:")
-        domain_label.setStyleSheet("color: #64748B; font-size: 16px;")
+        domain_label.setStyleSheet("color: #64748B; font-size: 13px;")
         
-        # Domain input with clean styling
+        domain_header_layout.addWidget(domain_label)
+        domain_header_layout.addStretch()
+        
+        domain_layout.addWidget(domain_header)
+        
+        # Domain input with cleaner styling and reduced height
         self.domain_input = QLineEdit()
         self.domain_input.setPlaceholderText("e.g., company.com, example.org")
-        self.domain_input.setMinimumHeight(50)
+        self.domain_input.setMinimumHeight(32)  # Even more reduced height
         self.domain_input.setStyleSheet("""
             QLineEdit {
-                padding: 0 20px;
+                padding: 0 10px;
                 background-color: white;
-                border: 2px solid #E2E8F0;
-                border-radius: 10px;
-                font-size: 16px;
+                border: 1px solid #E2E8F0;
+                border-radius: 6px;
+                font-size: 13px;
                 color: #334155;
             }
             QLineEdit:focus {
-                border: 2px solid #3B82F6;
+                border: 1px solid #3B82F6;
             }
         """)
         
-        # Domain hint
-        domain_hint = QLabel("Separate multiple domains with commas (e.g., company.com, example.org)")
-        domain_hint.setStyleSheet("color: #94A3B8; font-size: 14px; font-style: italic;")
+        # Domain hint as placeholderText and below input, smaller font
+        domain_hint = QLabel("Separate multiple domains with commas")
+        domain_hint.setStyleSheet("color: #94A3B8; font-size: 11px; font-style: italic;")
         
-        domain_layout.addWidget(domain_label)
         domain_layout.addWidget(self.domain_input)
         domain_layout.addWidget(domain_hint)
         
-        # Info card with cleaner design
+        # Info card with more compact design
         info_card = QWidget()
         info_card.setObjectName("infoCard")
         info_card.setStyleSheet("""
             #infoCard {
                 background-color: #F0F9FF;
-                border-radius: 10px;
+                border-radius: 6px;
             }
         """)
         
         info_layout = QHBoxLayout(info_card)
-        info_layout.setContentsMargins(20, 15, 20, 15)
+        info_layout.setContentsMargins(8, 6, 8, 6)  # Even more reduced padding
         
         info_icon = QLabel("ℹ️")
-        info_icon.setStyleSheet("font-size: 20px;")
+        info_icon.setStyleSheet("font-size: 14px;")  # Smaller icon
         
-        info_text = QLabel("Only disabled user accounts will be processed for email sanitization. "
-                         "The tool will identify external emails and append '.Ext' to them.")
+        info_text = QLabel("Only disabled user accounts will be processed. The tool will identify external emails and append '.Ext'.")
         info_text.setWordWrap(True)
-        info_text.setStyleSheet("color: #0C4A6E; font-size: 14px; line-height: 1.4;")
+        info_text.setStyleSheet("color: #0C4A6E; font-size: 11px; line-height: 1.1;")  # Smaller text
         
-        info_layout.addWidget(info_icon)
+        info_layout.addWidget(info_icon, alignment=Qt.AlignmentFlag.AlignTop)
         info_layout.addWidget(info_text, 1)
+
+        # View All Users button
+        view_users_btn = QPushButton("View All Users")
+        view_users_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        view_users_btn.setMinimumHeight(32)
+        view_users_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #EFF6FF;
+                color: #1E40AF;
+                border: 1px solid #BFDBFE;
+                border-radius: 6px;
+                padding: 0 15px;
+                font-size: 13px;
+                font-weight: 500;
+                text-align: center;
+            }
+            QPushButton:hover {
+                background-color: #DBEAFE;
+                border-color: #93C5FD;
+            }
+        """)
+        view_users_btn.clicked.connect(self.show_all_users)
         
-        # Add all components to content card
+        # Add components to content layout in a compact way
         content_layout.addWidget(config_title)
         content_layout.addWidget(options_container)
         content_layout.addWidget(self.domain_section)
-        content_layout.addStretch()
         content_layout.addWidget(info_card)
+        content_layout.addWidget(view_users_btn) # Added view users button
         
         # Action buttons with clean design
         actions_container = QWidget()
         actions_layout = QHBoxLayout(actions_container)
-        actions_layout.setContentsMargins(0, 0, 0, 0)
+        actions_layout.setContentsMargins(0, 10, 0, 0)
         
         back_btn = QPushButton("Back to Tools")
         back_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        back_btn.setMinimumHeight(50)
+        back_btn.setMinimumHeight(34)  # Even more reduced height
         back_btn.setStyleSheet("""
             QPushButton {
                 background-color: white;
                 color: #64748B;
-                border: 2px solid #E2E8F0;
-                border-radius: 10px;
-                padding: 0 30px;
-                font-size: 16px;
+                border: 1px solid #E2E8F0;
+                border-radius: 6px;
+                padding: 0 15px;
+                font-size: 13px;
                 font-weight: 500;
             }
             QPushButton:hover {
@@ -318,15 +370,15 @@ class EmailToolsPage(QWidget):
         
         process_btn = QPushButton("Process Emails")
         process_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        process_btn.setMinimumHeight(50)
+        process_btn.setMinimumHeight(34)  # Even more reduced height
         process_btn.setStyleSheet("""
             QPushButton {
                 background-color: #2563EB;
                 color: white;
                 border: none;
-                border-radius: 10px;
-                padding: 0 30px;
-                font-size: 16px;
+                border-radius: 6px;
+                padding: 0 15px;
+                font-size: 13px;
                 font-weight: 500;
             }
             QPushButton:hover {
@@ -339,10 +391,8 @@ class EmailToolsPage(QWidget):
         actions_layout.addStretch()
         actions_layout.addWidget(process_btn)
         
-        # Add all to main layout
-        layout.addWidget(title)
-        layout.addWidget(description)
-        layout.addWidget(content_card, 1)
+        # Add all to main layout - use fixed layout instead of stretch to eliminate blank space
+        layout.addWidget(content_card)
         layout.addWidget(actions_container)
         
         return page
@@ -963,3 +1013,183 @@ Request URL: https://{server}/work/api/v2/customers/{customer_id}/libraries/{lib
             icon=QMessageBox.Icon.Information
         )
         msg_box.exec()
+    
+    def show_all_users(self):
+        """Show a dialog with all users in a table"""
+        if not self.users:
+            msg_box = create_styled_message_box(
+                self,
+                title="No Users",
+                text="No users have been loaded yet.",
+                icon=QMessageBox.Icon.Information
+            )
+            msg_box.exec()
+            return
+            
+        # Create dialog
+        dialog = QDialog(self)
+        dialog.setWindowTitle("All Users")
+        dialog.setMinimumSize(800, 500)
+        dialog.setStyleSheet("""
+            QDialog {
+                background-color: #F8FAFC;
+            }
+        """)
+        
+        # Layout
+        layout = QVBoxLayout(dialog)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(15)
+        
+        # Header
+        header = QLabel("All Users")
+        header.setStyleSheet("""
+            font-size: 18px;
+            font-weight: 600;
+            color: #1E293B;
+        """)
+        
+        # User count pill
+        count_container = QWidget()
+        count_layout = QHBoxLayout(count_container)
+        count_layout.setContentsMargins(0, 0, 0, 0)
+        
+        count_label = QLabel(f"Total: {len(self.users)} users")
+        count_label.setStyleSheet("""
+            background-color: #EFF6FF;
+            color: #2563EB;
+            border-radius: 15px;
+            padding: 4px 12px;
+            font-size: 13px;
+            font-weight: 500;
+        """)
+        
+        count_layout.addWidget(count_label)
+        count_layout.addStretch()
+        
+        # Table
+        table = QTableWidget()
+        table.setColumnCount(5)
+        table.setHorizontalHeaderLabels(["User ID", "Name", "Email", "Status", "Type"])
+        table.setStyleSheet("""
+            QTableWidget {
+                background-color: white;
+                border: none;
+                gridline-color: #F1F5F9;
+                border-radius: 6px;
+            }
+            QTableWidget::item {
+                padding: 8px;
+                border-bottom: 1px solid #F1F5F9;
+                color: #334155;
+                font-size: 13px;
+            }
+            QTableWidget::item:selected {
+                background-color: #F0F9FF;
+                color: #0369A1;
+            }
+            QHeaderView::section {
+                background-color: #F8FAFC;
+                padding: 10px 8px;
+                font-weight: 600;
+                color: #64748B;
+                font-size: 13px;
+                border: none;
+                border-bottom: 2px solid #E2E8F0;
+                text-align: left;
+            }
+        """)
+        
+        # Configure table for better appearance
+        table.setAlternatingRowColors(True)
+        table.setShowGrid(False)
+        table.verticalHeader().setVisible(False)
+        table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        
+        # Populate table
+        table.setRowCount(len(self.users))
+        for i, user in enumerate(users := self.users):
+            # Create table items
+            user_id = QTableWidgetItem(str(user.get("UserID", "")))
+            name = QTableWidgetItem(user.get("FullName", ""))
+            email = QTableWidgetItem(user.get("Email", ""))
+            
+            # Get status
+            status_text = "Enabled" if user.get("Active", False) else "Disabled"
+            status = QTableWidgetItem(status_text)
+            
+            # Set color based on status
+            if status_text == "Enabled":
+                status.setForeground(QColor("#059669"))  # Green
+            else:
+                status.setForeground(QColor("#DC2626"))  # Red
+                
+            # User type based on email domain
+            user_email = user.get("Email", "")
+            user_type = QTableWidgetItem("Unknown")
+            
+            if user_email:
+                # Get domain from provided domains if available
+                if hasattr(self, 'domain_input') and self.domain_input.text().strip():
+                    domains = [d.strip() for d in self.domain_input.text().split(',') if d.strip()]
+                    is_external = True
+                    
+                    try:
+                        email_domain = user_email.split('@')[1].lower()
+                        for domain in domains:
+                            if email_domain == domain.lower() or email_domain.endswith('.' + domain.lower()):
+                                is_external = False
+                                break
+                                
+                        user_type = QTableWidgetItem("External" if is_external else "Internal")
+                        if is_external:
+                            user_type.setForeground(QColor("#0369A1"))  # Blue
+                        else:
+                            user_type.setForeground(QColor("#059669"))  # Green
+                    except:
+                        pass
+                else:
+                    # Just show if it has .Ext suffix
+                    if user_email.lower().endswith('.ext'):
+                        user_type = QTableWidgetItem("External")
+                        user_type.setForeground(QColor("#0369A1"))  # Blue
+            
+            # Add to table
+            table.setItem(i, 0, user_id)
+            table.setItem(i, 1, name)
+            table.setItem(i, 2, email)
+            table.setItem(i, 3, status)
+            table.setItem(i, 4, user_type)
+            
+            # Set row height
+            table.setRowHeight(i, 36)
+        
+        # Button to close the dialog
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        button_box.setStyleSheet("""
+            QPushButton {
+                background-color: white;
+                color: #64748B;
+                border: 1px solid #E2E8F0;
+                border-radius: 6px;
+                padding: 8px 16px;
+                font-size: 13px;
+                font-weight: 500;
+            }
+            QPushButton:hover {
+                background-color: #F8FAFC;
+                border-color: #CBD5E1;
+            }
+        """)
+        button_box.rejected.connect(dialog.reject)
+        
+        # Add components to layout
+        layout.addWidget(header)
+        layout.addWidget(count_container)
+        layout.addWidget(table)
+        layout.addWidget(button_box, alignment=Qt.AlignmentFlag.AlignRight)
+        
+        # Show dialog
+        dialog.exec()
