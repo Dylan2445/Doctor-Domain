@@ -313,7 +313,7 @@ class LogsPage(QWidget):
             return True
         return False
     
-    def refresh_log(self):
+    def refresh_log(self, include_tool_logs=False):
         """Refresh the log display"""
         was_updated = self.consolidate_logs()
         

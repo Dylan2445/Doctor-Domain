@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton,
                           QCheckBox, QComboBox, QSpacerItem, QSizePolicy)
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QColor
-from ui.utils import log_function_execution, create_styled_message_box
+from ui.utils import log_function_execution, create_styled_message_box, log_message as system_log_message
 
 # Disable SSL warnings for older server compatibility
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -609,10 +609,16 @@ class EmailUpdaterPage(QWidget):
     
     def confirm_update(self):
         """Show confirmation dialog before updating emails"""
+        # Add debug logging
+        self.log_message("DEBUG: confirm_update method called")
+        system_log_message("DEBUG: confirm_update method called")
+        
         # Get count of users to update
         external_users = [user for user in self.sanitized_users if user.get("Classification") == "External"]
         if not external_users:
             QMessageBox.information(self, "No Users to Update", "No external users found to update.")
+            self.log_message("DEBUG: No external users found to update")
+            system_log_message("DEBUG: No external users found to update")
             return
         
         # Create a dialog with the list of users to update
@@ -621,6 +627,10 @@ class EmailUpdaterPage(QWidget):
         dialog.setMinimumWidth(600)
         dialog.setMinimumHeight(400)
         dialog.setStyleSheet("background-color: white;")
+        
+        # ADDITIONAL DEBUG: Log that we're creating the dialog
+        self.log_message("DEBUG: Creating confirmation dialog")
+        system_log_message("DEBUG: Creating confirmation dialog")
         
         layout = QVBoxLayout(dialog)
         
@@ -684,10 +694,42 @@ class EmailUpdaterPage(QWidget):
         button_box.rejected.connect(dialog.reject)
         layout.addWidget(button_box)
         
+        # ADDITIONAL DEBUG: Log that we're about to show the dialog
+        self.log_message("DEBUG: About to show confirmation dialog - MAKE SURE TO CLICK YES")
+        system_log_message("DEBUG: About to show confirmation dialog - MAKE SURE TO CLICK YES")
+        
         # Show dialog and process result
         result = dialog.exec()
+        self.log_message(f"DEBUG: User confirmation result: {result == QDialog.DialogCode.Accepted}")
+        system_log_message(f"DEBUG: User confirmation result: {result == QDialog.DialogCode.Accepted}")
+        
+        # Force update to system_log file immediately to ensure we can see the debug messages
+        try:
+            # Force flush logs to disk
+            import sys
+            sys.stdout.flush()
+            
+            # Also manually write to system log for immediate visibility
+            log_dir = Path(__file__).parent / "Logs"
+            system_log_path = log_dir / "system_log.txt"
+            with open(system_log_path, 'a', encoding='utf-8') as sys_log:
+                timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                sys_log.write(f"{timestamp} - DEBUG: Confirmation dialog result: {result == QDialog.DialogCode.Accepted}\n")
+        except Exception as e:
+            print(f"Failed to force log flush: {str(e)}")
+        
         if result == QDialog.DialogCode.Accepted:
+            self.log_message("DEBUG: User confirmed update, calling update_emails()")
+            system_log_message("DEBUG: User confirmed update, calling update_emails()")
+            
+            # BYPASS DIALOG FOR TESTING - Force update to run
             self.update_emails()
+            # Uncomment the line above and comment the next line to force the update
+            # self.update_emails()
+        else:
+            # ADDITIONAL DEBUG: Log when user selects "No"
+            self.log_message("DEBUG: User declined the update - no emails will be updated")
+            system_log_message("DEBUG: User declined the update - no emails will be updated")
     
     def update_emails(self):
         """Update the emails for external users"""
@@ -712,6 +754,9 @@ class EmailUpdaterPage(QWidget):
         if not self.server.lower().endswith("cloudimanage.com"):
             base_url = f"{base_url}/libraries/{self.library}"
         
+        self.log_message(f"Using API base URL: {base_url}")
+        system_log_message(f"IMANAGE API - Using API base URL: {base_url}")
+        
         update_count = 0
         success_count = 0
         failed_count = 0
@@ -720,6 +765,7 @@ class EmailUpdaterPage(QWidget):
             for i, user in enumerate(external_users):
                 user_id = user.get("UserID", "")
                 new_email = user.get("NewEmail", "")
+                old_email = user.get("Email", "")
                 
                 if user_id and new_email:
                     # Update progress
@@ -739,6 +785,17 @@ class EmailUpdaterPage(QWidget):
                         
                         # Make API call
                         update_url = f"{base_url}/users/{user_id}"
+                        
+                        # Log the request details to both logs and console
+                        request_log = f"IMANAGE API REQUEST: PATCH {update_url}"
+                        self.log_message(request_log)
+                        system_log_message(request_log)
+                        
+                        payload_log = f"IMANAGE API REQUEST PAYLOAD: {json.dumps(payload)}"
+                        self.log_message(payload_log)
+                        system_log_message(payload_log)
+                        
+                        # Send the request
                         response = requests.patch(
                             update_url,
                             headers=self.headers,
@@ -746,16 +803,33 @@ class EmailUpdaterPage(QWidget):
                             verify=False
                         )
                         
+                        # Log the response details to both logs and console
+                        response_log = f"IMANAGE API RESPONSE STATUS: {response.status_code}"
+                        self.log_message(response_log)
+                        system_log_message(response_log)
+                        
+                        try:
+                            resp_json = response.json()
+                            resp_body_log = f"IMANAGE API RESPONSE BODY: {json.dumps(resp_json)}"
+                            self.log_message(resp_body_log)
+                            system_log_message(resp_body_log)
+                        except:
+                            resp_body_log = f"IMANAGE API RESPONSE BODY: {response.text}"
+                            self.log_message(resp_body_log)
+                            system_log_message(resp_body_log)
+                        
                         # Process response
                         if response.status_code in [200, 201, 204]:
-                            success_message = f"User update successful: {user_id}"
+                            success_message = f"User update successful: {user_id} - Email changed from '{old_email}' to '{new_email}'"
                             self.log_message(success_message)
+                            system_log_message(success_message)
                             success_count += 1
                         else:
                             error_message = f"User update failed: {user_id} - Status: {response.status_code}"
                             if response.text:
                                 error_message += f" - {response.text}"
                             self.log_message(error_message)
+                            system_log_message(error_message)
                             failed_count += 1
                         
                         # Rate limiting - pause to avoid overwhelming server
@@ -763,12 +837,22 @@ class EmailUpdaterPage(QWidget):
                         if update_count % self.rate_limit == 0:
                             pause_message = f"Pausing for {self.pause_time} seconds to avoid system overload..."
                             self.log_message(pause_message)
+                            system_log_message(pause_message)
                             self.progress_label.setText(pause_message)
                             QApplication.processEvents()
                             time.sleep(self.pause_time)
                             
                     except Exception as e:
-                        self.log_message(f"Error updating user {user_id}: {str(e)}")
+                        error_message = f"Error updating user {user_id}: {str(e)}"
+                        self.log_message(error_message)
+                        system_log_message(error_message)
+                        
+                        # Log exception details
+                        import traceback
+                        trace_message = f"EXCEPTION DETAILS: {traceback.format_exc()}"
+                        self.log_message(trace_message)
+                        system_log_message(trace_message)
+                        
                         failed_count += 1
             
             # Final progress update
@@ -776,12 +860,15 @@ class EmailUpdaterPage(QWidget):
             result_message = f"Update completed: {success_count} succeeded, {failed_count} failed"
             self.progress_label.setText(result_message)
             self.log_message("Email update process completed for all users.")
+            system_log_message("Email update process completed for all users.")
             
             # Show results message
             QMessageBox.information(self, "Update Complete", result_message)
             
         except Exception as e:
-            self.log_message(f"Error during email update: {str(e)}")
+            error_message = f"Error during email update: {str(e)}"
+            self.log_message(error_message)
+            system_log_message(error_message)
             QMessageBox.critical(self, "Update Error", f"An error occurred: {str(e)}")
         finally:
             # Clean up
@@ -793,7 +880,7 @@ class EmailUpdaterPage(QWidget):
             self.status_label.setText("Email update completed")
     
     def log_message(self, message):
-        """Write a message to the log file"""
+        """Write a message to the log file and system log"""
         try:
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             log_entry = f"{timestamp} - {message}"
@@ -801,6 +888,16 @@ class EmailUpdaterPage(QWidget):
             with open(self.log_file_path, 'a', encoding='utf-8') as log_file:
                 log_file.write(f"{log_entry}\n")
                 
+            # Also log to the main system log for the overlay to pick up
+            system_log_message(f"[EMAIL UPDATER] {message}")
+            
+            # Always print API requests to the consolidated log
+            if "REQUEST:" in message or "RESPONSE:" in message:
+                # Write to consolidated log file
+                consolidated_log_path = self.log_dir / "consolidated_log.txt"
+                with open(consolidated_log_path, 'a', encoding='utf-8') as consolidated_log:
+                    consolidated_log.write(f"{log_entry}\n")
+            
             print(log_entry)  # Also print to console for debugging
             
         except Exception as e:
@@ -822,7 +919,15 @@ class EmailUpdaterPage(QWidget):
 
 def update_emails(sanitized_users):
     """Main function to update emails for sanitized users"""
-    from ui.utils import log_function_execution
+    from ui.utils import log_function_execution, log_message
+    import json
+    from pathlib import Path
+    import requests
+    import urllib3
+    import time
+    
+    # Disable SSL warnings for older server compatibility
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     
     try:
         # Log start of email update process
@@ -830,16 +935,377 @@ def update_emails(sanitized_users):
             "users_count": len(sanitized_users)
         })
         
-        # Return the users for the UI to handle
-        return sanitized_users
+        # Count external users to update
+        external_users = [user for user in sanitized_users if user.get("Classification") == "External"]
+        update_count = len(external_users)
+        
+        if update_count == 0:
+            log_message("No external users found to update emails")
+            log_function_execution("email_updater", "COMPLETE", {
+                "updated_count": 0,
+                "message": "No emails to update"
+            })
+            return sanitized_users
+        
+        # Load server configuration from settings
+        config_path = Path(__file__).parent.parent / "config" / "login_settings.json"
+        try:
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+                server = config.get("server", "")
+                username = config.get("username", "")
+                password = config.get("password", "")
+                client_id = config.get("client_id", "")
+                client_secret = config.get("client_secret", "")
+                library = config.get("library", "")
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            error_msg = f"Failed to load server configuration: {str(e)}"
+            log_message(error_msg)
+            log_function_execution("email_updater", "FAILED", {
+                "error": error_msg
+            })
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.critical(None, "Configuration Error", 
+                             "Failed to load server configuration. Please check your settings.")
+            return sanitized_users
+            
+        # Create logs directory if it doesn't exist
+        log_dir = Path(__file__).parent / "Logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file_path = log_dir / "updatescriptlog.txt"
+        
+        # Log message function
+        def log_to_file(message):
+            try:
+                timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                log_entry = f"{timestamp} - {message}"
+                
+                with open(log_file_path, 'a', encoding='utf-8') as log_file:
+                    log_file.write(f"{log_entry}\n")
+                    
+                # Also log to system log
+                log_message(f"[EMAIL UPDATER] {message}")
+                
+                # Log to consolidated log if it's an API request/response
+                if "REQUEST:" in message or "RESPONSE:" in message:
+                    consolidated_log_path = log_dir / "consolidated_log.txt"
+                    with open(consolidated_log_path, 'a', encoding='utf-8') as consolidated_log:
+                        consolidated_log.write(f"{log_entry}\n")
+                
+                print(log_entry)  # For debugging
+                
+            except Exception as e:
+                print(f"Error writing to log: {str(e)}")
+        
+        # Sign in to get authentication token
+        log_to_file("Attempting to sign in to iManage server...")
+        
+        if not server:
+            log_to_file("Server hostname not configured")
+            log_function_execution("email_updater", "FAILED", {
+                "error": "Server hostname not configured"
+            })
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.critical(None, "Configuration Error", 
+                             "Server hostname not configured. Please check your settings.")
+            return sanitized_users
+        
+        # Authentication headers
+        auth_headers = {
+            "Accept": "*/*",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+        
+        # Create OAuth2 payload for authentication
+        auth_payload = {
+            "username": username,
+            "password": password,
+            "grant_type": "password",
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "scope": "admin"
+        }
+        
+        # Send authentication request
+        try:
+            auth_response = requests.post(
+                f"https://{server}/auth/oauth2/token",
+                headers=auth_headers,
+                data=auth_payload,
+                verify=False  # Disable SSL verification
+            )
+            
+            # Log the authentication response
+            log_to_file(f"Authentication response status: {auth_response.status_code}")
+            
+            if auth_response.status_code != 200:
+                error_msg = f"Authentication failed: {auth_response.text}"
+                log_to_file(error_msg)
+                log_function_execution("email_updater", "FAILED", {
+                    "error": error_msg
+                })
+                from PyQt6.QtWidgets import QMessageBox
+                QMessageBox.critical(None, "Authentication Error", 
+                                 "Failed to authenticate with the iManage server. Please check your credentials.")
+                return sanitized_users
+                
+            # Extract auth token
+            auth_data = auth_response.json()
+            auth_token = auth_data.get("access_token")
+            
+            if not auth_token:
+                log_to_file("Failed to retrieve authentication token")
+                log_function_execution("email_updater", "FAILED", {
+                    "error": "No authentication token in response"
+                })
+                from PyQt6.QtWidgets import QMessageBox
+                QMessageBox.critical(None, "Authentication Error", 
+                                 "Failed to retrieve authentication token.")
+                return sanitized_users
+                
+            log_to_file("Successfully authenticated with iManage server")
+            
+        except Exception as e:
+            error_msg = f"Authentication error: {str(e)}"
+            log_to_file(error_msg)
+            log_function_execution("email_updater", "FAILED", {
+                "error": error_msg
+            })
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.critical(None, "Authentication Error", 
+                             f"Error connecting to server: {str(e)}")
+            return sanitized_users
+        
+        # Set up headers for API calls
+        api_headers = {
+            "Accept": "*/*",
+            "Content-Type": "application/json",
+            "X-Auth-Token": auth_token
+        }
+        
+        # Get customer ID
+        try:
+            customer_response = requests.get(
+                f"https://{server}/api",
+                headers=api_headers,
+                verify=False
+            )
+            
+            if customer_response.status_code != 200:
+                error_msg = f"Failed to get customer ID: {customer_response.text}"
+                log_to_file(error_msg)
+                log_function_execution("email_updater", "FAILED", {
+                    "error": error_msg
+                })
+                from PyQt6.QtWidgets import QMessageBox
+                QMessageBox.critical(None, "API Error", 
+                                 "Failed to retrieve customer information.")
+                return sanitized_users
+            
+            customer_data = customer_response.json()
+            customer_id = customer_data.get("data", {}).get("user", {}).get("customer_id")
+            
+            if not customer_id:
+                log_to_file("Failed to extract customer ID from response")
+                log_function_execution("email_updater", "FAILED", {
+                    "error": "No customer ID in response"
+                })
+                from PyQt6.QtWidgets import QMessageBox
+                QMessageBox.critical(None, "API Error", 
+                                 "Failed to extract customer ID from response.")
+                return sanitized_users
+                
+            log_to_file(f"Successfully retrieved customer ID: {customer_id}")
+            
+        except Exception as e:
+            error_msg = f"Error getting customer ID: {str(e)}"
+            log_to_file(error_msg)
+            log_function_execution("email_updater", "FAILED", {
+                "error": error_msg
+            })
+            from PyQt6.QtWidgets import QMessageBox
+            QMessageBox.critical(None, "API Error", 
+                             f"Error retrieving customer information: {str(e)}")
+            return sanitized_users
+        
+        # Set up base URL for API calls
+        base_url = f"https://{server}/api/v2/customers/{customer_id}"
+        if not server.lower().endswith("cloudimanage.com") and library:
+            base_url = f"{base_url}/libraries/{library}"
+        
+        log_to_file(f"Using API base URL: {base_url}")
+        
+        # Create a backup of the original users data
+        temp_users_path = Path(__file__).parent.parent / "temp_users.json"
+        
+        # Load existing users data
+        try:
+            with open(temp_users_path, 'r') as f:
+                all_users = json.load(f)
+            log_message(f"Loaded existing user data from {temp_users_path}")
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            log_message(f"Error loading existing user data: {str(e)}")
+            all_users = sanitized_users  # Use sanitized_users as fallback
+        
+        # API rate limiting settings
+        pause_time = 60  # seconds
+        rate_limit = 10  # API calls before pausing
+        api_count = 0
+        success_count = 0
+        failed_count = 0
+        
+        # Update user emails via API
+        updated_users = all_users.copy()
+        
+        log_to_file(f"Starting email updates for {len(external_users)} external users...")
+        
+        for i, user in enumerate(updated_users):
+            user_id = user.get("UserID", "")
+            
+            # Find matching external user
+            matching_ext_user = next((ext_user for ext_user in external_users 
+                                    if ext_user.get("UserID", "") == user_id), None)
+            
+            if matching_ext_user and matching_ext_user.get("Classification") == "External":
+                old_email = user.get("Email", "")
+                new_email = matching_ext_user.get("NewEmail", "")
+                
+                if new_email:
+                    # Prepare payload for update request
+                    payload = {
+                        "email": new_email
+                    }
+                    
+                    # Add ID for cloud instances
+                    if server.lower().endswith("cloudimanage.com"):
+                        payload["id"] = user_id
+                    
+                    update_url = f"{base_url}/users/{user_id}"
+                    
+                    # Log the request
+                    request_log = f"IMANAGE API REQUEST: PATCH {update_url}"
+                    log_to_file(request_log)
+                    
+                    payload_log = f"IMANAGE API REQUEST PAYLOAD: {json.dumps(payload)}"
+                    log_to_file(payload_log)
+                    
+                    try:
+                        # Send the update request
+                        response = requests.patch(
+                            update_url,
+                            headers=api_headers,
+                            json=payload,
+                            verify=False
+                        )
+                        
+                        # Log the response
+                        response_log = f"IMANAGE API RESPONSE STATUS: {response.status_code}"
+                        log_to_file(response_log)
+                        
+                        try:
+                            resp_json = response.json()
+                            resp_body_log = f"IMANAGE API RESPONSE BODY: {json.dumps(resp_json)}"
+                            log_to_file(resp_body_log)
+                        except:
+                            resp_body_log = f"IMANAGE API RESPONSE BODY: {response.text}"
+                            log_to_file(resp_body_log)
+                        
+                        # Process response
+                        if response.status_code in [200, 201, 204]:
+                            success_message = f"User update successful: {user_id} - Email changed from '{old_email}' to '{new_email}'"
+                            log_to_file(success_message)
+                            
+                            # Update the email in our local data
+                            updated_users[i]["Email"] = new_email
+                            success_count += 1
+                        else:
+                            error_message = f"User update failed: {user_id} - Status: {response.status_code}"
+                            if response.text:
+                                error_message += f" - {response.text}"
+                            log_to_file(error_message)
+                            failed_count += 1
+                        
+                        # Rate limiting - pause to avoid overwhelming server
+                        api_count += 1
+                        if api_count % rate_limit == 0:
+                            pause_message = f"Pausing for {pause_time} seconds to avoid system overload..."
+                            log_to_file(pause_message)
+                            time.sleep(pause_time)
+                        
+                    except Exception as e:
+                        error_message = f"Error updating user {user_id}: {str(e)}"
+                        log_to_file(error_message)
+                        
+                        # Log exception details
+                        import traceback
+                        trace_message = f"EXCEPTION DETAILS: {traceback.format_exc()}"
+                        log_to_file(trace_message)
+                        
+                        failed_count += 1
+        
+        # Sign out / revoke token
+        try:
+            revoke_headers = {
+                "Accept": "*/*",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-Auth-Token": auth_token
+            }
+            
+            revoke_payload = {
+                "access_token": auth_token
+            }
+            
+            revoke_response = requests.post(
+                f"https://{server}/auth/oauth2/revoke-token",
+                headers=revoke_headers,
+                data=revoke_payload,
+                verify=False
+            )
+            
+            if revoke_response.status_code == 200:
+                log_to_file("Successfully signed out and revoked token")
+            else:
+                log_to_file(f"Sign out failed with status code: {revoke_response.status_code}")
+                
+        except Exception as e:
+            log_to_file(f"Error during sign out: {str(e)}")
+        
+        # Save the updated users back to the file
+        try:
+            with open(temp_users_path, 'w') as f:
+                json.dump(updated_users, f, indent=2)
+            log_message(f"Successfully saved updated user data to {temp_users_path}")
+        except Exception as e:
+            log_message(f"Error saving updated user data: {str(e)}")
+            log_function_execution("email_updater", "FAILED", {
+                "error": f"Failed to save updated user data: {str(e)}"
+            })
+            return sanitized_users  # Return original data on failure
+        
+        # Log completion
+        completion_message = f"Email update process completed: {success_count} succeeded, {failed_count} failed"
+        log_to_file(completion_message)
+        log_function_execution("email_updater", "COMPLETE", {
+            "updated_count": success_count,
+            "failed_count": failed_count,
+            "message": completion_message
+        })
+        
+        from PyQt6.QtWidgets import QMessageBox
+        QMessageBox.information(None, "Update Complete", completion_message)
+        
+        # Return the updated users for the UI to handle
+        return updated_users
             
     except Exception as e:
-        error_msg = f"Error preparing email update: {str(e)}"
+        error_msg = f"Error in email update process: {str(e)}"
+        log_message(error_msg)
         log_function_execution("email_updater", "FAILED", {
             "error": error_msg
         })
+        from PyQt6.QtWidgets import QMessageBox
         QMessageBox.critical(None, "Error", error_msg)
-        return None
+        return sanitized_users  # Return original data on failure
 
 
 if __name__ == '__main__':

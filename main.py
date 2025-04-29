@@ -222,7 +222,7 @@ class MainWindow(QMainWindow):
             # Immediately set to expanded state
             self.log_overlay.is_expanded = True
             self.log_overlay.content_container.show()
-            self.log_overlay.refresh_log()  # Refresh logs
+            self.log_overlay.refresh_log(force_complete_refresh=True)  # Refresh logs with complete refresh
         
     def on_login_success(self, access_token: str):
         """Called by the login page when login is successful"""
@@ -247,6 +247,11 @@ class MainWindow(QMainWindow):
             self.log_overlay.hide()
             
         self.stack.setCurrentWidget(self.pages[page_id])
+        
+        # If switching to logs page, ensure logs are refreshed
+        if page_id == 'logs':
+            # Tell the logs page to refresh its content including all tool logs
+            self.pages[page_id].refresh_log(include_tool_logs=True)
         
         # Update button states
         buttons = {

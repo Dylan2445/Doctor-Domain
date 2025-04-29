@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton,
                            QStackedWidget, QSizePolicy, QGridLayout, QDialog, QDialogButtonBox)
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui import QColor, QIcon
+from ui.utils import log_message
 
 # Ensure the sanitize_emails function is exposed at the module level 
 # so it can be imported directly from other modules
@@ -116,6 +117,9 @@ def domain_discovery_route(users_list):
     with open(log_file_path, "a") as log_file:
         log_file.write(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Retrieving company email domains...\n")
     
+    # Also log to the main system log
+    log_message("Retrieving company email domains...")
+    
     # Extract domains from emails
     domains = []
     for user in users_list:
@@ -149,12 +153,17 @@ def domain_discovery_route(users_list):
     company_domain = max(domain_counts.items(), key=lambda x: x[1])[0] if domain_counts else ""
     
     # Log domain discovery
+    log_message_text = f"Classifying users as internal or external based on domain match with '{company_domain}' or similarity..."
     with open(log_file_path, "a") as log_file:
-        log_file.write(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - "
-                      f"Classifying users as internal or external based on domain match with '{company_domain}' or similarity...\n")
+        log_file.write(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - {log_message_text}\n")
+    
+    # Also log to the main system log
+    log_message(log_message_text)
     
     # Classify users
     results = []
+    external_count = 0
+    
     for item in domains:
         root_domain = item["RootDomain"].lower()
         main_root_domain = company_domain.split('.')[0].lower() if company_domain else ""
@@ -179,6 +188,11 @@ def domain_discovery_route(users_list):
         
         # Only include disabled users in results
         if item["Status"] == "Disabled":
+            if classification == "External":
+                external_count += 1
+                # Log each external user email update
+                log_message(f"External user found: {item['FullName']} ({item['UserID']}) - Email: {item['Email']} → {new_email}")
+            
             results.append({
                 "UserID": item["UserID"],
                 "FullName": item["FullName"],
@@ -188,6 +202,14 @@ def domain_discovery_route(users_list):
                 "Classification": classification,
                 "Status": item["Status"]
             })
+    
+    # Log completion with count
+    completion_message = f"Email sanitizer completed: {external_count} emails updated"
+    with open(log_file_path, "a") as log_file:
+        log_file.write(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - {completion_message}\n")
+    
+    # Also log to the main system log
+    log_message(completion_message)
     
     return results
 
